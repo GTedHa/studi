@@ -1,0 +1,2 @@
+recursive-include studi/templates *
+recursive-include studi/static *
