@@ -11,8 +11,6 @@ class Notes(Resource):
         pass
 
     def post(self):
-        message = ''
-        status = 400
         dummys = []
         for i in range(0, 3):
             dummy = {
