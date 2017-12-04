@@ -15,3 +15,4 @@ if not app.debug:
     app.logger.addHandler(file_handler)
 
 import studi.views
+import studi.rest_apis
