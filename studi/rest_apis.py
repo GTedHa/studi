@@ -45,3 +45,24 @@ class Clauses(Resource):
         return { 'note_id': note_id, 'clauses': dummys }, 200
 
 api.add_resource(Clauses, '/clauses/list')
+
+class Clause(Resource):
+
+    def __init__(self):
+        pass
+
+    def put(self):
+        app.logger.debug('PUT /clause/update requested')
+        parser = reqparse.RequestParser()
+        parser.add_argument('clause_id', type=int, required=True, location='json')
+        parser.add_argument('imp', type=int, required=True, location='json')
+        parser.add_argument('und', type=int, required=True, location='json')
+        args = parser.parse_args()
+        # TODO: update DB
+        # log debug
+        app.logger.debug('clause_id: {0}'.format(args['clause_id']))
+        app.logger.debug('imp: {0}'.format(args['imp']))
+        app.logger.debug('und: {0}'.format(args['und']))
+        return { 'result': True }, 200
+
+api.add_resource(Clause, '/clause/update')
