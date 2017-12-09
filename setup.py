@@ -8,7 +8,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'flask',
-        'flask-restful'
+        'flask>=0.12.0',
+        'flask-restful>=0.3.0'
     ],
 )
