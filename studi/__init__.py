@@ -19,3 +19,4 @@ if not app.debug:
 import studi.views
 import studi.rest_apis
 import studi.intf_db
+import studi.utils
