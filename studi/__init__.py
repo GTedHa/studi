@@ -1,6 +1,8 @@
 import os
 from flask import Flask
 
+module_path = os.path.dirname(os.path.abspath(__file__))
+
 app = Flask(__name__)
 app.config.from_object('studi.default_settings')
 app.config.from_envvar('STUDI_SETTINGS')
@@ -16,3 +18,4 @@ if not app.debug:
 
 import studi.views
 import studi.rest_apis
+import studi.intf_db
