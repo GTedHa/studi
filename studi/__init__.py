@@ -5,7 +5,10 @@ module_path = os.path.dirname(os.path.abspath(__file__))
 
 app = Flask(__name__)
 app.config.from_object('studi.default_settings')
-app.config.from_envvar('STUDI_SETTINGS')
+try:
+    app.config.from_envvar('STUDI_SETTINGS')
+except RuntimeError:
+    pass
 
 if not app.debug:
     import logging
