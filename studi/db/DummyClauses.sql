@@ -1,0 +1,9 @@
+INSERT INTO Clauses(note_id, title, contents) VALUES(1, "Title-1", "Contents-1");
+INSERT INTO Clauses(note_id, title, contents) VALUES(1, "Title-2", "Contents-2");
+INSERT INTO Clauses(note_id, title, contents) VALUES(1, "Title-3", "Contents-3");
+INSERT INTO Clauses(note_id, title, contents) VALUES(2, "Title-1", "Contents-1");
+INSERT INTO Clauses(note_id, title, contents) VALUES(2, "Title-2", "Contents-2");
+INSERT INTO Clauses(note_id, title, contents) VALUES(2, "Title-3", "Contents-3");
+INSERT INTO Clauses(note_id, title, contents) VALUES(3, "Title-1", "Contents-1");
+INSERT INTO Clauses(note_id, title, contents) VALUES(3, "Title-2", "Contents-2");
+INSERT INTO Clauses(note_id, title, contents) VALUES(3, "Title-3", "Contents-3");
