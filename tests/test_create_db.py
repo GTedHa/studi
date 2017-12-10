@@ -42,13 +42,11 @@ class TestCreateDB(unittest.TestCase):
                 logger.debug("Cannot get db..")
                 db = None
             self.assertIsNotNone(db)
-            exe_cnt, cmd_cnt = studi.utils.execute_sql(
+            executed = studi.utils.execute_sql_file(
                 studi.module_path + '/db/Notes.sql',
                 db
             )
-            if cmd_cnt is 0 or exe_cnt is not cmd_cnt:
-                logger.debug("Fail to create Notes table.")
-            self.assertEqual(exe_cnt, cmd_cnt)
+            self.assertTrue(executed)
 
     def test_create_table_clauses(self):
         with studi.app.app_context():
@@ -58,13 +56,11 @@ class TestCreateDB(unittest.TestCase):
                 logger.debug("Cannot get db..")
                 db = None
             self.assertIsNotNone(db)
-            exe_cnt, cmd_cnt = studi.utils.execute_sql(
+            executed = studi.utils.execute_sql_file(
                 studi.module_path + '/db/Clauses.sql',
                 db
             )
-            if cmd_cnt is 0 or exe_cnt is not cmd_cnt:
-                logger.debug("Fail to create Clauses table.")
-            self.assertEqual(exe_cnt, cmd_cnt)
+            self.assertTrue(executed)
 
     def test_create_table_clause_points(self):
         with studi.app.app_context():
@@ -74,13 +70,11 @@ class TestCreateDB(unittest.TestCase):
                 logger.debug("Cannot get db..")
                 db = None
             self.assertIsNotNone(db)
-            exe_cnt, cmd_cnt = studi.utils.execute_sql(
+            executed = studi.utils.execute_sql_file(
                 studi.module_path + '/db/ClausePoints.sql',
                 db
             )
-            if cmd_cnt is 0 or exe_cnt is not cmd_cnt:
-                logger.debug("Fail to create ClausePoints table.")
-            self.assertEqual(exe_cnt, cmd_cnt)
+            self.assertTrue(executed)
 
 
 if __name__ == '__main__':
