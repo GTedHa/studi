@@ -68,31 +68,46 @@ class ClausePoints(Resource):
                 
 
 
-class Clauses(Resource):
+class Clause(Resource):
 
     def __init__(self):
         pass
 
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('note_id', type=int, help='Note ID')
+        parser.add_argument('clause_id', type=int, help='Note ID')
         args = parser.parse_args()
-        note_id = args['note_id']
-        dummys = []
-        for i in range(0, 10):
-            dummy = {
-                'clause_id': 10+i,
-                'title': 'Clause {0}'.format(i+1),
-                'contents': 'Clause {0} means nothing...'.format(i+1),
-                'imp': 0,
-                'und': 1
-            }
-            dummys.append(dummy)
-        return { 'note_id': note_id, 'clauses': dummys }, 200
+        clause_id = args['clause_id']
+        try:
+            rv = intf_db.query_db(
+                "SELECT * FROM Clauses WHERE clause_id={0}".format(clause_id)
+            )
+        except Exception as exc:
+            app.logger.warn(
+                "Exception raised during 'SELECT * FROM Clauses WHERE clause_id={0}' query: {1}".format(
+                    clause_id, str(exc)
+                )
+            )
+            return { 'clause_id': clause_id, 'title': None, 'contents': None }, 500
+        if rv:
+            try:
+                item = rv[0]
+                title = item['title']
+                contents = item['contents']
+                return { 'clause_id': clause_id, 'title': title, 'contents': contents }, 200
+            except Exception as exc:
+                app.logger.warn(
+                    "Exception raised during access to query row item {0}: {1}".format(
+                        item, str(exc)
+                    )
+                )
+                return { 'clause_id': clause_id, 'title': None, 'contents': None }, 500
+        else:
+            return { 'clause_id': clause_id, 'title': None, 'contents': None }, 201
 
 
 
-class Clause(Resource):
+class UpdatePoint(Resource):
 
     def __init__(self):
         pass
@@ -114,5 +129,5 @@ class Clause(Resource):
 
 api.add_resource(Notes, '/notes')
 api.add_resource(ClausePoints, '/points')
-api.add_resource(Clauses, '/clauses/list')
-api.add_resource(Clause, '/clause/update')
+api.add_resource(Clause, '/clause')
+api.add_resource(UpdatePoint, '/point/update')
