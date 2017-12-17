@@ -2,8 +2,10 @@ from flask import request, jsonify, Response
 from flask_restful import reqparse, Api, Resource
 
 from studi import app
+from studi import intf_db
 
 api = Api(app)
+
 
 class Notes(Resource):
 
@@ -11,58 +13,131 @@ class Notes(Resource):
         pass
 
     def post(self):
-        dummys = []
-        for i in range(0, 3):
-            dummy = {
-                'note_id': 100+i,
-                'note_name': 'Note {0}'.format(i+1)
-            }
-            dummys.append(dummy)
-        return { 'notes': dummys }, 200
+        try:
+            rv = intf_db.query_db(
+                "SELECT * FROM Notes"
+            )
+        except Exception as exc:
+            app.logger.warn("Exception raised during 'SELECT * FROM Notes;' query: {0}".format(
+                str(exc)
+            ))
+            return { 'notes': None }, 500
+        if rv:
+            notes = []       
+            for item in rv:
+                note = dict()
+                for key in item.keys():
+                    note[key] = item[key]
+                notes.append(note)
+            return { 'notes': notes }, 200
+        else:
+            return { 'notes': None }, 201
 
-api.add_resource(Notes, '/notes/list')
 
-class Clauses(Resource):
+class ClausePoints(Resource):
 
     def __init__(self):
         pass
 
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('note_id', type=int, help='Note ID')
+        parser.add_argument('note_id', type=int, required=True)
         args = parser.parse_args()
         note_id = args['note_id']
-        dummys = []
-        for i in range(0, 10):
-            dummy = {
-                'clause_id': 10+i,
-                'title': 'Clause {0}'.format(i+1),
-                'contents': 'Clause {0} means nothing...'.format(i+1),
-                'imp': 0,
-                'und': 1
-            }
-            dummys.append(dummy)
-        return { 'note_id': note_id, 'clauses': dummys }, 200
-
-api.add_resource(Clauses, '/clauses/list')
+        try:
+            rv = intf_db.query_db(
+                "SELECT * FROM ClausePoints WHERE note_id={0}".format(note_id)
+            )
+        except Exception as exc:
+            app.logger.warn(
+                "Exception raised during 'SELECT * FROM ClausePoints WHERE note_id={0}' query: {1}".format(
+                    note_id, str(exc)
+                )
+            )
+            return { 'note_id': note_id, 'clause_points': None }, 500
+        if rv:
+            clause_points = []
+            for item in rv:
+                point = dict()
+                for key in item.keys():
+                    if key != 'note_id':
+                        point[key] = item[key]
+                clause_points.append(point)
+            return { 'note_id': note_id, 'clause_points': clause_points }, 200
+        else:
+            return { 'note_id': note_id, 'clause_points': None }, 201
+                
 
 class Clause(Resource):
 
     def __init__(self):
         pass
 
-    def put(self):
-        app.logger.debug('PUT /clause/update requested')
+    def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('clause_id', type=int, required=True, location='json')
-        parser.add_argument('imp', type=int, required=True, location='json')
-        parser.add_argument('und', type=int, required=True, location='json')
+        parser.add_argument('clause_id', type=int, required=True)
         args = parser.parse_args()
-        # TODO: update DB
-        # log debug
-        app.logger.debug('clause_id: {0}'.format(args['clause_id']))
-        app.logger.debug('imp: {0}'.format(args['imp']))
-        app.logger.debug('und: {0}'.format(args['und']))
+        clause_id = args['clause_id']
+        try:
+            rv = intf_db.query_db(
+                "SELECT * FROM Clauses WHERE clause_id={0}".format(clause_id)
+            )
+        except Exception as exc:
+            app.logger.warn(
+                "Exception raised during 'SELECT * FROM Clauses WHERE clause_id={0}' query: {1}".format(
+                    clause_id, str(exc)
+                )
+            )
+            return { 'clause_id': clause_id, 'title': None, 'contents': None }, 500
+        if rv:
+            try:
+                item = rv[0]
+                title = item['title']
+                contents = item['contents']
+                return { 'clause_id': clause_id, 'title': title, 'contents': contents }, 200
+            except Exception as exc:
+                app.logger.warn(
+                    "Exception raised during access to query row item {0}: {1}".format(
+                        item, str(exc)
+                    )
+                )
+                return { 'clause_id': clause_id, 'title': None, 'contents': None }, 500
+        else:
+            return { 'clause_id': clause_id, 'title': None, 'contents': None }, 201
+
+
+class UpdatePoint(Resource):
+
+    def __init__(self):
+        pass
+
+    def put(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('clause_id', type=int, required=True)
+        parser.add_argument('imp', type=int, required=True)
+        parser.add_argument('und', type=int, required=True)
+        args = parser.parse_args()
+        clause_id = args['clause_id']
+        imp = args['imp']
+        und = args['und']
+        query_statement = \
+            "UPDATE ClausePoints SET imp={0}, und={1} WHERE clause_id={2}".format(
+                imp, und, clause_id
+            )
+        try:
+            rowcount = intf_db.update_db(query_statement, commit=True)
+        except Exception as exc:
+            app.logger.warn("{0} query: {1}".format(
+                    query_statement, str(exc)
+                )
+            )
+            return { 'result': False }, 500
+        if rowcount != 1:
+            return { 'result': False }, 201
         return { 'result': True }, 200
 
-api.add_resource(Clause, '/clause/update')
+
+api.add_resource(Notes, '/notes')
+api.add_resource(ClausePoints, '/points')
+api.add_resource(Clause, '/clause')
+api.add_resource(UpdatePoint, '/point/update')
