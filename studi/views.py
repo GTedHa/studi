@@ -13,7 +13,7 @@ def show_note_page(note_id):
     note_name = 'Temp note'
     return render_template('note.html', note_name=note_name, note_id=note_id)
 
-@app.route('/clauses/<int:note_id>')
+@app.route('/note/<int:note_id>/clause')
 def show_clause_page(note_id):
-    note_id = -1
+    note_id = 1
     return render_template('clause.html', note_id=note_id)
