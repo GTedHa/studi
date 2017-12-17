@@ -80,14 +80,16 @@ class TestSelectQueries(unittest.TestCase):
         if rv:
             if isinstance(rv, collections.Iterable):
                 for item in rv:
-                    logger.debug('{0} | {1} | {2}'.format(
+                    logger.debug('{0} | {1} | {2} | {3}'.format(
                         item['clause_id'],
+                        item['note_id'],
                         item['imp'],
                         item['und']
                     ))
             else:
-                logger.debug('{0} | {1} | {2}'.format(
+                logger.debug('{0} | {1} | {2} | {3}'.format(
                         rv['clause_id'],
+                        rv['note_id'],
                         rv['imp'],
                         rv['und']
                     ))
