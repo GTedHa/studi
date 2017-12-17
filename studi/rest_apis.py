@@ -2,6 +2,7 @@ from flask import request, jsonify, Response
 from flask_restful import reqparse, Api, Resource
 
 from studi import app
+from studi import intf_db
 
 api = Api(app)
 
@@ -11,16 +12,26 @@ class Notes(Resource):
         pass
 
     def post(self):
-        dummys = []
-        for i in range(0, 3):
-            dummy = {
-                'note_id': 100+i,
-                'note_name': 'Note {0}'.format(i+1)
-            }
-            dummys.append(dummy)
-        return { 'notes': dummys }, 200
+        try:
+            rv = intf_db.query_db(
+                "SELECT * FROM Notes"
+            )
+        except Exception as exc:
+            logger.warn("Exception raised during 'SELECT * FROM Notes;' query: {0}".format(
+                str(exc)
+            ))
+            return { 'notes': None }, 500
+        if rv:
+            notes = []       
+            for item in rv:
+                note = dict()
+                for key in item.keys():
+                    note[key] = item[key]
+                notes.append(note)
+            return { 'notes': notes }, 200
+        else:
+            return { 'notes': None }, 201
 
-api.add_resource(Notes, '/notes/list')
 
 class Clauses(Resource):
 
@@ -44,7 +55,7 @@ class Clauses(Resource):
             dummys.append(dummy)
         return { 'note_id': note_id, 'clauses': dummys }, 200
 
-api.add_resource(Clauses, '/clauses/list')
+
 
 class Clause(Resource):
 
@@ -65,4 +76,7 @@ class Clause(Resource):
         app.logger.debug('und: {0}'.format(args['und']))
         return { 'result': True }, 200
 
+
+api.add_resource(Notes, '/notes')
+api.add_resource(Clauses, '/clauses/list')
 api.add_resource(Clause, '/clause/update')
