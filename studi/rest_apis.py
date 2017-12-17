@@ -6,6 +6,7 @@ from studi import intf_db
 
 api = Api(app)
 
+
 class Notes(Resource):
 
     def __init__(self):
@@ -40,7 +41,7 @@ class ClausePoints(Resource):
 
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('note_id', type=int, help='Note ID')
+        parser.add_argument('note_id', type=int, required=True)
         args = parser.parse_args()
         note_id = args['note_id']
         try:
@@ -67,7 +68,6 @@ class ClausePoints(Resource):
             return { 'note_id': note_id, 'clause_points': None }, 201
                 
 
-
 class Clause(Resource):
 
     def __init__(self):
@@ -75,7 +75,7 @@ class Clause(Resource):
 
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('clause_id', type=int, help='Note ID')
+        parser.add_argument('clause_id', type=int, required=True)
         args = parser.parse_args()
         clause_id = args['clause_id']
         try:
@@ -106,24 +106,34 @@ class Clause(Resource):
             return { 'clause_id': clause_id, 'title': None, 'contents': None }, 201
 
 
-
 class UpdatePoint(Resource):
 
     def __init__(self):
         pass
 
     def put(self):
-        app.logger.debug('PUT /clause/update requested')
         parser = reqparse.RequestParser()
-        parser.add_argument('clause_id', type=int, required=True, location='json')
-        parser.add_argument('imp', type=int, required=True, location='json')
-        parser.add_argument('und', type=int, required=True, location='json')
+        parser.add_argument('clause_id', type=int, required=True)
+        parser.add_argument('imp', type=int, required=True)
+        parser.add_argument('und', type=int, required=True)
         args = parser.parse_args()
-        # TODO: update DB
-        # log debug
-        app.logger.debug('clause_id: {0}'.format(args['clause_id']))
-        app.logger.debug('imp: {0}'.format(args['imp']))
-        app.logger.debug('und: {0}'.format(args['und']))
+        clause_id = args['clause_id']
+        imp = args['imp']
+        und = args['und']
+        query_statement = \
+            "UPDATE ClausePoints SET imp={0}, und={1} WHERE clause_id={2}".format(
+                imp, und, clause_id
+            )
+        try:
+            rowcount = intf_db.update_db(query_statement, commit=True)
+        except Exception as exc:
+            app.logger.warn("{0} query: {1}".format(
+                    query_statement, str(exc)
+                )
+            )
+            return { 'result': False }, 500
+        if rowcount != 1:
+            return { 'result': False }, 201
         return { 'result': True }, 200
 
 
