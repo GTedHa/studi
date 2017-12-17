@@ -17,7 +17,7 @@ class Notes(Resource):
                 "SELECT * FROM Notes"
             )
         except Exception as exc:
-            logger.warn("Exception raised during 'SELECT * FROM Notes;' query: {0}".format(
+            app.logger.warn("Exception raised during 'SELECT * FROM Notes;' query: {0}".format(
                 str(exc)
             ))
             return { 'notes': None }, 500
@@ -31,6 +31,41 @@ class Notes(Resource):
             return { 'notes': notes }, 200
         else:
             return { 'notes': None }, 201
+
+
+class ClausePoints(Resource):
+
+    def __init__(self):
+        pass
+
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('note_id', type=int, help='Note ID')
+        args = parser.parse_args()
+        note_id = args['note_id']
+        try:
+            rv = intf_db.query_db(
+                "SELECT * FROM ClausePoints WHERE note_id={0}".format(note_id)
+            )
+        except Exception as exc:
+            app.logger.warn(
+                "Exception raised during 'SELECT * FROM ClausePoints WHERE note_id={0}' query: {1}".format(
+                    note_id, str(exc)
+                )
+            )
+            return { 'note_id': note_id, 'clause_points': None }, 500
+        if rv:
+            clause_points = []
+            for item in rv:
+                point = dict()
+                for key in item.keys():
+                    if key != 'note_id':
+                        point[key] = item[key]
+                clause_points.append(point)
+            return { 'note_id': note_id, 'clause_points': clause_points }, 200
+        else:
+            return { 'note_id': note_id, 'clause_points': None }, 201
+                
 
 
 class Clauses(Resource):
@@ -78,5 +113,6 @@ class Clause(Resource):
 
 
 api.add_resource(Notes, '/notes')
+api.add_resource(ClausePoints, '/points')
 api.add_resource(Clauses, '/clauses/list')
 api.add_resource(Clause, '/clause/update')
