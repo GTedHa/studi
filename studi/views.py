@@ -32,3 +32,7 @@ def show_note_page(note_id):
     else:
         note_name = 'Note not found'            
     return render_template('note.html', note_name=note_name, note_id=note_id)
+
+@app.route('/upload_test')
+def upload_test():
+    return render_template('file_test.html')

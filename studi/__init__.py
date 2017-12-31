@@ -27,7 +27,9 @@ else:
    file_handler.setFormatter(logging.Formatter('<%(asctime)s> <%(levelname)s> %(message)s'))
    app.logger.addHandler(file_handler)
 
-import studi.views
-import studi.rest_apis
+
 import studi.intf_db
+import studi.rest_apis
+import studi.upload
 import studi.utils
+import studi.views
