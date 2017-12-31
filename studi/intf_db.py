@@ -26,10 +26,18 @@ def query_db(query, args=(), one=False):
     cur.close()
     return (rv[0] if rv else None) if one else rv
 
-def update_db(query, commit=False, one=False):
+def update_db(query, commit=False):
     cur = get_db().execute(query)
     if commit:
         get_db().commit()
     rowcount = cur.rowcount
     cur.close()
     return rowcount
+
+def insert_db(query):
+    cur = get_db().execute(query)
+    get_db().commit()
+    lastrowid = cur.lastrowid
+    cur.close()
+    return lastrowid
+    
