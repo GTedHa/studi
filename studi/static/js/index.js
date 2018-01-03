@@ -48,5 +48,38 @@ $(document).ready(function(){
         }
      });
 
+
+     $(document).on('click', '.list-group-item' ,function(){
+    
+      var noteId = $(this).data('id');
+      var noteName = $(this).text();
+      console.log('noteName');
+      console.log(noteName);
+      console.log('noteId');
+      console.log(noteId);
+
+      // list click 시에 localStrorage에 저장
+     localStorage.setItem('noteId', noteId);
+     localStorage.setItem('noteName', noteName);
+
+     //todo url을 변경하지 않고 넘길 수도 있으나
+     // a 태그로 url 이동하는 걸로 수정
+     $.ajax({
+       url : '/note/'+ noteId,
+       type: 'GET',
+       async: false,
+       success : function(data){
+        //  console.log('data');
+        //  console.log(data);
+         $('body').html(data);
+       },
+       error : function(){
+         console.log('error');
+       }
+     })
+
+
+     })
+     
 });
     
