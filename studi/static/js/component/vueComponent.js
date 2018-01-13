@@ -16,13 +16,18 @@ var vm = new Vue({
         timer: 0, // timer
         title: 'basic title',
         noteId: null,
-        imp: 0, // 0 : 안중요, 1 : 중요
-        und: 0, // 0 : 이해x, 1 : 보통,  2 : 이해 o
+        
         pointList: [],
-        selectedClauseList: [], // 조건에 따라 선택된 clauseList
         currentClauseId: null, // 현재 보여지고 있는 clause
         currentClauseTitle : '',
-        currentClauseContent : ''
+        currentClauseContent : '',
+        currentIndex : '',
+        currentOtions : {
+            imp: 0, // 0 : 안중요, 1 : 중요
+            und: 0, // 0 : 이해x, 1 : 보통,  2 : 이해 o
+        },
+        radio : 0,
+        isChanged : false,
     },
     created: function () {
 
@@ -34,7 +39,6 @@ var vm = new Vue({
         this.noteId = noteId;
 
         // clause에 대한 point 정보 호출
-        var pointData;
         $.ajax({
             url: "/points",
             type: 'POST',
@@ -53,11 +57,11 @@ var vm = new Vue({
 
     },
     methods: {
-        showCluase: function (clauseId) {
+        showClause: function (clauseId) {
 
-            // console.log('showNextCluase');
-            // console.log('clauseId');
-            // console.log(clauseId);
+            console.log('showNextCluase');
+            console.log('clauseId');
+            console.log(clauseId);
             var self = this;
 
             $.ajax({
@@ -81,22 +85,96 @@ var vm = new Vue({
                 }
             })
         },
+        updateClause : function (clauseId){
+            var self = this;
+
+            $.ajax({
+                url : "point/update",
+                type : 'PUT',
+                async : false,
+                data : {
+                    clause_id : this.currentClauseId,
+                    imp : this.currentOtions.imp,
+                    und : this.currentOtions.und
+                },
+                dataType : 'json',
+                success : function (data, textStatus, xhr){
+                    console.log('update success');
+                    console.log(data);
+                }, error : function (error){
+                    console.log('update error');
+                }
+            })
+          
+        },
         start: function () {
-            // console.log('start');
-            // console.log('this.pointList');
-            // console.log(this.pointList);
+            console.log('start');
+            console.log('this.pointList');
+            console.log(this.pointList);
 
             this.currentClauseId = this.pointList[0].clause_id;
 
-            // console.log('this.currentClauseId');
-            // console.log(this.currentClauseId);
+        
+
+            console.log('this.currentClauseId');
+            console.log(this.currentClauseId);
             
-            this.showCluase(this.currentClauseId);
+            this.showClause(this.currentClauseId);
             this.isOk = true;
         },
         next: function () {
-            // 조건 조회하여 
-            // 다음 퀴즈 보여주기 
+        console.log('\n next');
+            // 변경 사항이 있을 경우만 업데이트 
+            if (this.isChanged) {
+                // this.updateClause(this.currentClauseId);
+            }
+
+            var stop = false;
+            var currentIndex = 0;
+            // 조건 조회하여 다음 퀴즈 보여주기
+            for(clause of this.pointList){
+       
+                if (stop === true) {
+                    this.currentClauseId = clause.clause_id;
+                    this.showClause(this.currentClauseId);
+                    return;
+                }
+                if (this.currentClauseId === clause.clause_id) {
+                    // last clause
+                    if(currentIndex === this.pointList.length - 1){
+                        return;
+                    }
+                    // 세부 조건은 여기서 추가
+                    stop = true;
+                }
+                currentIndex ++;
+            } 
+
+        },
+        prev : function () {
+            console.log('\nprev');
+            // 변경 사항이 있을 경우만 업데이트 
+            if (this.isChanged) {
+                // this.updateClause(this.currentClauseId);
+            }
+            var prevClauseId = 0;
+            var currentIndex = 0;
+            for(clause of this.pointList){
+                if(this.currentClauseId === clause.clause_id){
+                    // first caluse 
+                    if(currentIndex === 0){
+                        console.log('첫 퀴즈입니다');
+                        return false;
+                    }
+
+                    this.currentClauseId = prevClauseId;
+                } else {
+                    prevClauseId = clause.clause_id;
+                }
+                currentIndex++;
+            }
+            this.showClause(this.currentClauseId);
+
         },
         startTimer: function () {
             var totalTime = this.timer;
@@ -113,6 +191,10 @@ var vm = new Vue({
         pointList: function () {
             // console.log('pointList is changed');
             // console.log(this.pointList);
+        },
+        currentOtions : function(){
+            // option의 value가 변경될 경우에
+            this.isChanged = true; 
         }
     }
 })

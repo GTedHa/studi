@@ -52,8 +52,8 @@
             </div>
             <div>
                 <div class="btn-group" role="group">
-                    <button class="btn btn-default" type="button">이 전</button>
-                    <button class="btn btn-default" type="button">다 음</button>
+                    <button class="btn btn-default"v-on:click="prev" type="button">이 전</button>
+                    <button class="btn btn-default" v-on:click="next" type="button">다 음</button>
                 </div>
             </div>
         </div>
@@ -66,19 +66,19 @@
             <div>
                 <div class="radio">
                     <label>
-                        <input type="radio" name='options' v-bind:value="1" v-model="und">전체 보기</label>
+                        <input type="radio" name='options' v-bind:value="1" v-model="radio">전체 보기</label>
                 </div>
                 <div class="radio">
                     <label>
-                        <input type="radio" name='options' v-bind:value="2" v-model="und">중요한 것만 보기</label>
+                        <input type="radio" name='options' v-bind:value="2" v-model="radio">중요한 것만 보기</label>
                 </div>
                 <div class="radio">
                     <label>
-                        <input type="radio" name='options' v-bind:value="3" v-model="und">아는 것만 보기</label>
+                        <input type="radio" name='options' v-bind:value="3" v-model="radio">아는 것만 보기</label>
                 </div>
                 <div class="radio">
                     <label>
-                        <input type="radio" name='options' v-bind:value="4" v-model="und">모르는 것만 보기</label>
+                        <input type="radio" name='options' v-bind:value="4" v-model="radio">모르는 것만 보기</label>
                 </div>
             </div>
             <div>
