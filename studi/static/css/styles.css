@@ -1,0 +1,20 @@
+#start {
+    width : 90%;
+    margin : 5%
+}
+
+#survey {
+    padding: 10px;
+    text-align: center
+}
+
+#survey .radio {
+    line-height: 30px
+}
+.radio {
+    height: 30px;
+}
+
+#title-box {
+    text-align: center
+}
