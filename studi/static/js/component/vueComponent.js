@@ -63,6 +63,12 @@ var vm = new Vue({
             console.log('showNextCluase');
             console.log('clauseId');
             console.log(clauseId);
+            var $collapseContent = $('#collapseContent');
+
+            if($collapseContent.hasClass('in')){
+                $('#collapse-btn').click();
+            }
+
             var self = this;
 
             $.ajax({
@@ -195,12 +201,17 @@ var vm = new Vue({
             }
             this.timerObj = window.setInterval(function () {
                 if (self.totalTime > 0) {
-                    self.totalTime--;면
+                    self.totalTime--;
                 }
 
                 if(Number(self.totalTime) === 0){
                     // console.log('0초 종료');
+
+                    var $collapseContent = $('#collapseContent');
                     // todo 여기서 collapse 열기 동작 실행
+                    if(!$collapseContent.hasClass('in')){
+                        $('#collapse-btn').click();
+                    }
 
                     clearInterval(self.timerObj);
                     self.timerObj = null;
