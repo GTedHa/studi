@@ -14,9 +14,9 @@ var vm = new Vue({
     data: {
         isOk: false, // default : false
         timer: 0, // timer
+        totalTime : 0, // timer
         title: 'basic title',
         noteId: null,
-        
         pointList: [],
         currentClauseId: null, // 현재 보여지고 있는 clause
         currentClauseTitle : '',
@@ -28,6 +28,7 @@ var vm = new Vue({
         },
         radio : 0,
         isChanged : false,
+        tiemrObj : null
     },
     created: function () {
 
@@ -111,7 +112,7 @@ var vm = new Vue({
             console.log('start');
             console.log('this.pointList');
             console.log(this.pointList);
-
+            this.startTimer(); // timer
             this.currentClauseId = this.pointList[0].clause_id;
 
         
@@ -124,6 +125,9 @@ var vm = new Vue({
         },
         next: function () {
         console.log('\n next');
+        // console.log('if timerObj');
+        // console.log(timerObj);
+        this.startTimer(); // timer
             // 변경 사항이 있을 경우만 업데이트 
             if (this.isChanged) {
                 // this.updateClause(this.currentClauseId);
@@ -142,6 +146,7 @@ var vm = new Vue({
                 if (this.currentClauseId === clause.clause_id) {
                     // last clause
                     if(currentIndex === this.pointList.length - 1){
+                        // todo servey 쪽으로 이동
                         return;
                     }
                     // 세부 조건은 여기서 추가
@@ -153,6 +158,7 @@ var vm = new Vue({
         },
         prev : function () {
             console.log('\nprev');
+            this.startTimer(); // timer
             // 변경 사항이 있을 경우만 업데이트 
             if (this.isChanged) {
                 // this.updateClause(this.currentClauseId);
@@ -164,8 +170,10 @@ var vm = new Vue({
                     // first caluse 
                     if(currentIndex === 0){
                         console.log('첫 퀴즈입니다');
+                        // todo servey 쪽으로 이동
                         return false;
                     }
+                   
 
                     this.currentClauseId = prevClauseId;
                 } else {
@@ -177,20 +185,33 @@ var vm = new Vue({
 
         },
         startTimer: function () {
-            var totalTime = this.timer;
-            var timerObj = window.setInterval(function () {
-                if (totalTime > 0) {
-                    totalTime--;
-                } else {
-                    clearInterval(timerObj);
+            // console.log('startTimer');
+            this.totalTime = Number(this.timer); // 사용자가 입력한 time을 저장함 
+            var self = this;
+            
+            if(this.timerObj != null){
+                // 기존에 실행하던 타이머가 있다면 종료
+                clearInterval(this.timerObj);
+            }
+            this.timerObj = window.setInterval(function () {
+                if (self.totalTime > 0) {
+                    self.totalTime--;면
+                }
+
+                if(Number(self.totalTime) === 0){
+                    // console.log('0초 종료');
+                    // todo 여기서 collapse 열기 동작 실행
+
+                    clearInterval(self.timerObj);
+                    self.timerObj = null;
                 }
             }, 1000);
         }
     },
     watch: {
         pointList: function () {
-            // console.log('pointList is changed');
-            // console.log(this.pointList);
+            console.log('pointList is changed');
+            console.log(this.pointList);
         },
         currentOtions : function(){
             // option의 value가 변경될 경우에

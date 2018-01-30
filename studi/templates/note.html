@@ -48,7 +48,7 @@
             </div>
             <div>
                 <label for="timer">
-                    <input type="number" name="timer" v-bind:value="timer" style="width:100px;"> 초 </label>
+                    <input type="number" v-bind:value="totalTime" style="width:100px;"> 초 </label>
             </div>
             <div>
                 <div class="btn-group" role="group">
@@ -83,7 +83,7 @@
             </div>
             <div>
                 <span>타이머</span>
-                <input id="timer" type="number" value='0' style="width : 100px">
+                <input type="number" v-model="timer" style="width : 100px">
                 <span>초</span>
             </div>
             <div>
