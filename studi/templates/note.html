@@ -39,6 +39,9 @@
     </nav>
     <div id="notes">
         <div id="quiz" v-if="isOk">
+            <div class="quiz-top-box" style="width:100%;margin:0px 50px;text-align:left">
+                    <label><input type="checkbox" style="width:30px">중요</label>
+            </div>
             <div id='collapse-btn' data-toggle="collapse" data-target="#collapseContent" aria-expanded="false" aria-controls="currentClauseContent">
                 <!-- <input type="text" v-bind:value="currentClauseId"> -->
                 <input id="clause-title" type="text" v-bind:value="currentClauseTitle" readonly>
@@ -49,6 +52,11 @@
             </div>
 
             <div id="quiz-bottom-box" style="position:fixed; bottom:0px;width : 100%">
+                <div class="und-btn">
+                    <input type="button" value="이해못함">
+                    <input type="button" value="보통">
+                    <input type="button" value="이해함">
+                </div>
                 <div>
                     <label for="timer">
                         <input type="number" v-bind:value="totalTime" style="width:100px;" readonly> 초 </label>
