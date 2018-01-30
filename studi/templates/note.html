@@ -40,23 +40,27 @@
     <div id="notes">
         <div id="quiz" v-if="isOk">
             <div id='collapse-btn' data-toggle="collapse" data-target="#collapseContent" aria-expanded="false" aria-controls="currentClauseContent">
-                <input type="text" v-bind:value="currentClauseId">
+                <!-- <input type="text" v-bind:value="currentClauseId"> -->
                 <input id="clause-title" type="text" v-bind:value="currentClauseTitle" readonly>
             </div>
             <div class="collapse" id="collapseContent">
                 <textarea class="" v-bind:value="currentClauseContent" readonly>
                     </textarea>
             </div>
-            <div>
-                <label for="timer">
-                    <input type="number" v-bind:value="totalTime" style="width:100px;"> 초 </label>
-            </div>
-            <div>
-                <div class="btn-group" role="group">
-                    <button class="btn btn-default" v-on:click="prev" type="button">이 전</button>
-                    <button class="btn btn-default" v-on:click="next" type="button">다 음</button>
+
+            <div id="quiz-bottom-box" style="position:fixed; bottom:0px;width : 100%">
+                <div>
+                    <label for="timer">
+                        <input type="number" v-bind:value="totalTime" style="width:100px;" readonly> 초 </label>
+                </div>
+                <div>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-default" v-on:click="prev" type="button">이 전</button>
+                        <button class="btn btn-default" v-on:click="next" type="button">다 음</button>
+                    </div>
                 </div>
             </div>
+
         </div>
         <div id="survey" v-else>
             <div id="title-box">
@@ -84,7 +88,7 @@
             </div>
             <div>
                 <span>타이머</span>
-                <input type="number" v-model="timer" style="width : 100px">
+                <input type="number" v-model="timer" style="width : 100px" >
                 <span>초</span>
             </div>
             <div>
