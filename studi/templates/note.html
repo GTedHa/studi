@@ -39,7 +39,7 @@
     </nav>
     <div id="notes">
         <div id="quiz" v-if="isOk">
-            <div data-toggle="collapse" data-target="#collapseContent" aria-expanded="false" aria-controls="currentClauseContent">
+            <div id='collapse-btn' data-toggle="collapse" data-target="#collapseContent" aria-expanded="false" aria-controls="currentClauseContent">
                 <input type="text" v-bind:value="currentClauseId">
                 <input id="clause-title" type="text" v-bind:value="currentClauseTitle" readonly>
             </div>
