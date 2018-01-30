@@ -40,7 +40,7 @@
     <div id="notes">
         <div id="quiz" v-if="isOk">
             <div class="quiz-top-box" style="width:100%;margin:0px 50px;text-align:left">
-                    <label><input type="checkbox" style="width:30px">중요</label>
+                    <label><input  type="checkbox" style="width:30px" :true-value="1" :false-value="0" v-model="currentOptions.imp">중요</label>
             </div>
             <div id='collapse-btn' data-toggle="collapse" data-target="#collapseContent" aria-expanded="false" aria-controls="currentClauseContent">
                 <!-- <input type="text" v-bind:value="currentClauseId"> -->
@@ -53,9 +53,10 @@
 
             <div id="quiz-bottom-box" style="position:fixed; bottom:0px;width : 100%">
                 <div class="und-btn">
-                    <input type="button" value="이해못함">
-                    <input type="button" value="보통">
-                    <input type="button" value="이해함">
+                   <input type="text" v-bind:value="currentOptions.und">
+                        <label for="und_0"><input id="und_0" type="radio" name="selectedOptions" :checked="currentOptions.und == 0"  v-bind:value="0" v-on:click="checkUnd">이해못함</label>
+                        <label for="und_1"> <input  id="und_1" type="radio" name="selectedOptions"  :checked="currentOptions.und == 1" v-bind:value="1"  v-on:click="checkUnd">보통 </label>
+                        <label for="und_2"><input  id="und_2" type="radio"name="selectedOptions" :checked="currentOptions.und == 2" v-bind:value="2"  v-on:click="checkUnd">이해함 </label>
                 </div>
                 <div>
                     <label for="timer">

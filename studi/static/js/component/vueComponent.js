@@ -22,9 +22,13 @@ var vm = new Vue({
         currentClauseTitle : '',
         currentClauseContent : '',
         currentIndex : '',
-        currentOtions : {
-            imp: 0, // 0 : 안중요, 1 : 중요
-            und: 0, // 0 : 이해x, 1 : 보통,  2 : 이해 o
+        currentOptions : {
+            imp: 1, // 0 : 안중요, 1 : 중요
+            und: 2, // 0 : 이해x, 1 : 보통,  2 : 이해 o
+        },
+        constCurrentOptions : {
+            imp: 1, // 0 : 안중요, 1 : 중요
+            und: 2, // 0 : 이해x, 1 : 보통,  2 : 이해 o
         },
         radio : 0,
         isChanged : false,
@@ -82,8 +86,7 @@ var vm = new Vue({
                 success: function (data, textStatus, xhr) {
                     // console.log('get cluase success');
                     // console.log(data);
-                    // console.log(data.title)
-                    // console.log($('#clause-title'));
+                    self.currentClauseId = data.clause_id;
                     self.currentClauseTitle = data.title;
                     self.currentClauseContent = data.contents;
 
@@ -91,23 +94,50 @@ var vm = new Vue({
                     console.log('get cluase fail');
                 }
             })
+            // 현재의 point 정보 search
+            this.searchPointInfo(this.currentClauseId);
+        },
+        searchPointInfo : function (clauseId) {
+           for( obj of this.pointList){
+               // 해당 clause의 point 정보를 찾음
+               if(obj.clause_id == clauseId){
+                   console.log('현재의 포인트 정보');
+                   console.log(obj);
+                // 업데이트 시킬 value
+                // todo 변경 여부 상관 없이 일단 업데이트 하도록 하기 위함
+                this.currentOptions.imp = obj.imp;
+                this.currentOptions.und = obj.und;
+                // 저장되어 있는 value
+                this.constCurrentOptions.imp = obj.imp;
+                this.constCurrentOptions.und = obj.und;
+               }
+           }
         },
         updateClause : function (clauseId){
             var self = this;
 
             $.ajax({
-                url : "point/update",
+                url : "/point/update",
                 type : 'PUT',
                 async : false,
                 data : {
                     clause_id : this.currentClauseId,
-                    imp : this.currentOtions.imp,
-                    und : this.currentOtions.und
+                    imp : this.currentOptions.imp,
+                    und : this.currentOptions.und
                 },
                 dataType : 'json',
                 success : function (data, textStatus, xhr){
                     console.log('update success');
                     console.log(data);
+                    // this.pointlist에서 해당 clause를 찾아서
+                    // value를 변경시킨다
+                    for( obj of self.pointList){
+                        if(obj.clause_id == self.currentClauseId){
+                            // 변경한 clause 정보
+                            obj.imp = self.currentOptions.imp;
+                            obj.und = self.currentOptions.und;
+                        }
+                    }
                 }, error : function (error){
                     console.log('update error');
                 }
@@ -119,25 +149,19 @@ var vm = new Vue({
             console.log('this.pointList');
             console.log(this.pointList);
             this.startTimer(); // timer
-            this.currentClauseId = this.pointList[0].clause_id;
-
-        
-
-            console.log('this.currentClauseId');
-            console.log(this.currentClauseId);
-            
-            this.showClause(this.currentClauseId);
-            this.isOk = true;
+            this.showClause(this.pointList[0].clause_id);
+             // 첫 clause의 id를 넘겨줌 
+            this.isOk = true; 
         },
         next: function () {
         console.log('\n next');
         // console.log('if timerObj');
         // console.log(timerObj);
         this.startTimer(); // timer
-            // 변경 사항이 있을 경우만 업데이트 
-            if (this.isChanged) {
-                // this.updateClause(this.currentClauseId);
-            }
+            // todo 변경 사항이 있을 경우만 업데이트 
+            // if (this.isChanged) {
+                this.updateClause(this.currentClauseId);
+            // }
 
             var stop = false;
             var currentIndex = 0;
@@ -165,10 +189,10 @@ var vm = new Vue({
         prev : function () {
             console.log('\nprev');
             this.startTimer(); // timer
-            // 변경 사항이 있을 경우만 업데이트 
-            if (this.isChanged) {
-                // this.updateClause(this.currentClauseId);
-            }
+            // todo 변경 사항이 있을 경우만 업데이트 
+            // if (this.isChanged) {
+                this.updateClause(this.currentClauseId);
+            // }
             var prevClauseId = 0;
             var currentIndex = 0;
             for(clause of this.pointList){
@@ -217,16 +241,22 @@ var vm = new Vue({
                     self.timerObj = null;
                 }
             }, 1000);
+        },
+        checkImp : function(){
+            // 중요 버튼을 눌렀을 때의 동작 
+            console.log('checkImp');
+            console.log('this.currentOptions.imp');
+            console.log(this.currentOptions.imp); 
+        },
+        checkUnd : function(el){   
+            var und = el.target.value;
+            this.currentOptions.und = und;
         }
     },
     watch: {
         pointList: function () {
             console.log('pointList is changed');
             console.log(this.pointList);
-        },
-        currentOtions : function(){
-            // option의 value가 변경될 경우에
-            this.isChanged = true; 
         }
     }
 })
