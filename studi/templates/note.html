@@ -14,7 +14,7 @@
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <div class="navbar-header">
-                <a class="navbar-brand" href="#">Brand</a>
+                <a class="navbar-brand" href="../">Studi</a>
                 <button class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navcol-1">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
@@ -22,7 +22,7 @@
                     <span class="icon-bar"></span>
                 </button>
             </div>
-            <div class="collapse navbar-collapse" id="navcol-1">
+            <!-- <div class="collapse navbar-collapse" id="navcol-1">
                 <ul class="nav navbar-nav">
                     <li class="active" role="presentation">
                         <a href="#">First Item</a>
@@ -30,11 +30,8 @@
                     <li role="presentation">
                         <a href="#">Second Item</a>
                     </li>
-                    <li role="presentation">
-                        <a href="#">Third Item</a>
-                    </li>
                 </ul>
-            </div>
+            </div> -->
         </div>
     </nav>
     <div id="notes">
@@ -80,19 +77,23 @@
             <div>
                 <div class="radio">
                     <label>
-                        <input type="radio" name='options' v-bind:value="1" v-model="radio">전체 보기</label>
+                        <input type="radio" name='options' v-bind:value="1" :checked="checkPoint == 1" v-on:click="checkSurveyPoint">전체 보기</label>
                 </div>
                 <div class="radio">
                     <label>
-                        <input type="radio" name='options' v-bind:value="2" v-model="radio">중요한 것만 보기</label>
+                        <input type="radio" name='options' v-bind:value="2" :checked="checkPoint == 2" v-on:click="checkSurveyPoint">중요한 것만 보기</label>
                 </div>
                 <div class="radio">
                     <label>
-                        <input type="radio" name='options' v-bind:value="3" v-model="radio">아는 것만 보기</label>
+                        <input type="radio" name='options' v-bind:value="3" :checked="checkPoint == 3" v-on:click="checkSurveyPoint">아는 것만 보기</label>
                 </div>
                 <div class="radio">
                     <label>
-                        <input type="radio" name='options' v-bind:value="4" v-model="radio">모르는 것만 보기</label>
+                        <input type="radio" name='options' v-bind:value="4" :checked="checkPoint == 4" v-on:click="checkSurveyPoint">애매하게 아는 것만 보기</label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name='options' v-bind:value="5" :checked="checkPoint == 5"  v-on:click="checkSurveyPoint">모르는 것만 보기</label>
                 </div>
             </div>
             <div>
