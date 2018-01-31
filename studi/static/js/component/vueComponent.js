@@ -22,6 +22,8 @@ var vm = new Vue({
         currentClauseTitle : '',
         currentClauseContent : '',
         currentIndex : '',
+        checkPoint : 1, // survey's value, default : 1 (전체 보기)
+        isAvailClause : false, // 조건에 해당하는 clause 인지 여부
         currentOptions : {
             imp: 1, // 0 : 안중요, 1 : 중요
             und: 2, // 0 : 이해x, 1 : 보통,  2 : 이해 o
@@ -62,40 +64,113 @@ var vm = new Vue({
 
     },
     methods: {
-        showClause: function (clauseId) {
+        filterClause : function(thisPoint){
+            console.log('filterClause 입니다');
+            console.log('this.checkPoint');
+            console.log(typeof this.checkPoint);
+            console.log(this.checkPoint);
+            console.log('thisPoint');
+            console.log(thisPoint);
+            // 현재의 cluase가 survey 조건과 부합하면 true,
+            //                            부합하지 않으면 false 
 
-            console.log('showNextCluase');
+           // checkPoint : 1 ( 전체보기 )
+            //              2 ( 중요한 것만 보기 , imp = 1)
+            //              3 ( 아는 것만 보기, und = 2)
+            //              4 ( 애매한 것만 보기, und = 1 )
+            //              5 (모르는 것만 보기, und = 0 )
+
+
+            switch (Number(this.checkPoint)) {
+                case 1 : console.log('전체보기 입니다');
+                this.isAvailClause = true;
+                        break;
+                case 2 : console.log('22222번 : 중요한 것만 보기');
+                        if(thisPoint.imp == 1){
+                            this.isAvailClause = true;
+                        } else {
+                            this.isAvailClause = false;
+                        }
+                         break;
+                case 3 : console.log('33333번 : 아는 것만 보기');
+                        if(thisPoint.und == 2){
+                            this.isAvailClause = true;
+                        } else {
+                            this.isAvailClause = false;
+                        }
+                         break;
+                case 4 : console.log('44444번 : 애매한 것만 보기');
+                        if(thisPoint.und == 1){
+                            this.isAvailClause = true;
+                        } else {
+                            this.isAvailClause = false;
+                        }                     
+                         break;
+                case 5 : console.log('55555번 : 모르는 것만 보기');
+                        if(thisPoint.und == 0){
+                            this.isAvailClause = true;
+                        } else {
+                            this.isAvailClause = false;
+                        }
+                         break;       
+            }
+            console.log('this.isAvailClause');
+            console.log(this.isAvailClause);
+        }, 
+        showClause: function (clauseId) {
+            console.log('showClause');
             console.log('clauseId');
             console.log(clauseId);
-            var $collapseContent = $('#collapseContent');
 
-            if($collapseContent.hasClass('in')){
-                $('#collapse-btn').click();
-            }
+            // 보여질 예정인 clauseId의 point 정보 search
+            var thisClausePoint = this.searchPointInfo(clauseId);
 
-            var self = this;
+            // 해당 point 정보가 this.checkPoint 조건에 맞는지 검사
+                this.filterClause(thisClausePoint);
 
-            $.ajax({
-                url: "/clause",
-                type: 'POST',
-                async: false,
-                data: {
-                    clause_id: clauseId
-                },
-                dataType: 'json',
-                success: function (data, textStatus, xhr) {
-                    // console.log('get cluase success');
-                    // console.log(data);
-                    self.currentClauseId = data.clause_id;
-                    self.currentClauseTitle = data.title;
-                    self.currentClauseContent = data.contents;
 
-                }, error: function (error) {
-                    console.log('get cluase fail');
+            if (this.isAvailClause) {
+                // todo 변경 여부 상관 없이 일단 업데이트 하도록 하기 위함
+                  // 업데이트 시킬 value
+                this.currentOptions.imp = thisClausePoint.imp;
+                this.currentOptions.und = thisClausePoint.und;
+
+                // 저장되어 있는 value
+                this.constCurrentOptions.imp = thisClausePoint.imp;
+                this.constCurrentOptions.und = thisClausePoint.und;
+
+                var $collapseContent = $('#collapseContent');
+
+                if($collapseContent.hasClass('in')){
+                    $('#collapse-btn').click();
                 }
-            })
-            // 현재의 point 정보 search
-            this.searchPointInfo(this.currentClauseId);
+    
+                var self = this;
+    
+                $.ajax({
+                    url: "/clause",
+                    type: 'POST',
+                    async: false,
+                    data: {
+                        clause_id: clauseId
+                    },
+                    dataType: 'json',
+                    success: function (data, textStatus, xhr) {
+                        // console.log('get cluase success');
+                        // console.log(data);
+                        self.currentClauseId = data.clause_id;
+                        self.currentClauseTitle = data.title;
+                        self.currentClauseContent = data.contents;
+    
+                    }, error: function (error) {
+                        console.log('get cluase fail');
+                    }
+                })
+
+            } else {
+                // 조건에 해당하지 않으므로 다음 cluase로 이동
+                this.next();
+            }
         },
         searchPointInfo : function (clauseId) {
            for( obj of this.pointList){
@@ -103,13 +178,7 @@ var vm = new Vue({
                if(obj.clause_id == clauseId){
                    console.log('현재의 포인트 정보');
                    console.log(obj);
-                // 업데이트 시킬 value
-                // todo 변경 여부 상관 없이 일단 업데이트 하도록 하기 위함
-                this.currentOptions.imp = obj.imp;
-                this.currentOptions.und = obj.und;
-                // 저장되어 있는 value
-                this.constCurrentOptions.imp = obj.imp;
-                this.constCurrentOptions.und = obj.und;
+                   return obj; // 일치하는 point 정보를 반환
                }
            }
         },
@@ -159,9 +228,9 @@ var vm = new Vue({
         // console.log(timerObj);
         this.startTimer(); // timer
             // todo 변경 사항이 있을 경우만 업데이트 
-            // if (this.isChanged) {
+            if (this.isAvailClauses) { //&& this.isChanged
                 this.updateClause(this.currentClauseId);
-            // }
+            }
 
             var stop = false;
             var currentIndex = 0;
@@ -190,9 +259,9 @@ var vm = new Vue({
             console.log('\nprev');
             this.startTimer(); // timer
             // todo 변경 사항이 있을 경우만 업데이트 
-            // if (this.isChanged) {
+            if (this.isAvailClauses) { //&& this.isChanged
                 this.updateClause(this.currentClauseId);
-            // }
+            }
             var prevClauseId = 0;
             var currentIndex = 0;
             for(clause of this.pointList){
@@ -251,7 +320,13 @@ var vm = new Vue({
         checkUnd : function(el){   
             var und = el.target.value;
             this.currentOptions.und = und;
-        }
+        },
+        checkSurveyPoint : function (el){
+            console.log('checkSurveyPoint');
+            // 선택된 radio's value
+            this.checkPoint = el.target.value; 
+            console.log(this.checkPoint);
+        },
     },
     watch: {
         pointList: function () {
