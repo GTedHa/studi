@@ -1,8 +1,4 @@
 console.log('vueComponent.js')
-// 등록
-Vue.component('my-component', {
-    template: '<div>사용자 정의 컴포넌트 입니다!</div>'
-})
 
 // 루트 인스턴스 생성
 new Vue({
@@ -37,6 +33,7 @@ var vm = new Vue({
         tiemrObj : null
     },
     created: function () {
+        console.log('\n [created]');
 
         var noteId = localStorage.getItem('noteId');
         var noteName = localStorage.getItem('noteName');
@@ -65,12 +62,8 @@ var vm = new Vue({
     },
     methods: {
         filterClause : function(thisPoint){
-            console.log('filterClause 입니다');
-            console.log('this.checkPoint');
-            console.log(typeof this.checkPoint);
-            console.log(this.checkPoint);
-            console.log('thisPoint');
-            console.log(thisPoint);
+            console.log('\n [filterClause]');
+
             // 현재의 cluase가 survey 조건과 부합하면 true,
             //                            부합하지 않으면 false 
 
@@ -82,46 +75,42 @@ var vm = new Vue({
 
 
             switch (Number(this.checkPoint)) {
-                case 1 : console.log('전체보기 입니다');
-                this.isAvailClause = true;
+                case 1 : console.log('1 : 전체보기 입니다');
+                        this.isAvailClause = true;
                         break;
-                case 2 : console.log('22222번 : 중요한 것만 보기');
-                        if(thisPoint.imp == 1){
+                case 2 : console.log('2 : 중요한 것만 보기(imp = 1)');
+                        if (thisPoint.imp == 1) {
                             this.isAvailClause = true;
                         } else {
                             this.isAvailClause = false;
                         }
                          break;
-                case 3 : console.log('33333번 : 아는 것만 보기');
-                        if(thisPoint.und == 2){
+                case 3 : console.log('3 : 아는 것만 보기(und = 2)');
+                        if (thisPoint.und == 2) {
                             this.isAvailClause = true;
                         } else {
                             this.isAvailClause = false;
                         }
                          break;
-                case 4 : console.log('44444번 : 애매한 것만 보기');
-                        if(thisPoint.und == 1){
+                case 4 : console.log('4 : 애매한 것만 보기 (und = 1)');
+                        if (thisPoint.und == 1) {
                             this.isAvailClause = true;
                         } else {
                             this.isAvailClause = false;
                         }                     
                          break;
-                case 5 : console.log('55555번 : 모르는 것만 보기');
-                        if(thisPoint.und == 0){
+                case 5 : console.log('5 : 모르는 것만 보기 (und = 0)');
+                        if (thisPoint.und == 0) {
                             this.isAvailClause = true;
                         } else {
                             this.isAvailClause = false;
                         }
                          break;       
             }
-            console.log('this.isAvailClause');
-            console.log(this.isAvailClause);
+            console.log('해당 퀴즈는 보여줘도 되겠습니까? : ' + this.isAvailClause);
         }, 
         showClause: function (clauseId) {
-            console.log('showClause');
-            console.log('clauseId');
-            console.log(clauseId);
-
+            console.log('\n [showClause]');
             // 보여질 예정인 clauseId의 point 정보 search
             var thisClausePoint = this.searchPointInfo(clauseId);
 
@@ -173,16 +162,18 @@ var vm = new Vue({
             }
         },
         searchPointInfo : function (clauseId) {
+            console.log('\n [searchPointInfo]');
            for( obj of this.pointList){
                // 해당 clause의 point 정보를 찾음
                if(obj.clause_id == clauseId){
-                   console.log('현재의 포인트 정보');
-                   console.log(obj);
+                    console.log('현재 퀴즈 '+ clauseId +' 번의 포인트 정보');
+                    console.log(JSON.stringify(obj, null, 2));
                    return obj; // 일치하는 point 정보를 반환
                }
            }
         },
         updateClause : function (clauseId){
+            console.log('\n [updateClause]');
             var self = this;
 
             $.ajax({
@@ -214,16 +205,16 @@ var vm = new Vue({
           
         },
         start: function () {
-            console.log('start');
-            console.log('this.pointList');
-            console.log(this.pointList);
+            console.log('\n [start]');
+            // console.log('this.pointList');
+            // console.log(this.pointList);
             this.startTimer(); // timer
             this.showClause(this.pointList[0].clause_id);
              // 첫 clause의 id를 넘겨줌 
             this.isOk = true; 
         },
         next: function () {
-        console.log('\n next');
+        console.log('\n [next]');
         // console.log('if timerObj');
         // console.log(timerObj);
         this.startTimer(); // timer
@@ -246,6 +237,7 @@ var vm = new Vue({
                     // last clause
                     if(currentIndex === this.pointList.length - 1){
                         // todo servey 쪽으로 이동
+                        this.isOk = false;
                         return;
                     }
                     // 세부 조건은 여기서 추가
@@ -269,6 +261,7 @@ var vm = new Vue({
                     // first caluse 
                     if(currentIndex === 0){
                         console.log('첫 퀴즈입니다');
+                        this.isOk = false;
                         // todo servey 쪽으로 이동
                         return false;
                     }
