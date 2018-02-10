@@ -18,30 +18,3 @@
 #title-box {
     text-align: center
 }
-
-#quiz div{
-    text-align: center;
-    padding : 10px;
-}
-
-#quiz input,textarea{
-    line-height: 25px;
-    text-align: center;
-    width : 90%
-}
-
-#quiz textarea{
-    height: 300px
-}
-
-#quiz button{
-    width : 200px;
-    height : 35px;
-    text-align: center
-}
-
-#quiz-bottom-box .und-btn input{
-    width: 100px;
-    height : 35px;
-    text-align: center;
-}
