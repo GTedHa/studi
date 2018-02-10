@@ -137,7 +137,35 @@ class UpdatePoint(Resource):
         return { 'result': True }, 200
 
 
+class DeleteNote(Resource):
+
+    def __init__(self):
+        pass
+
+    def delete(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('note_id', type=int, required=True)
+        args = parser.parse_args()
+        note_id = args['note_id']
+        query_statement = \
+            "DELETE FROM Notes WHERE note_id = {0}".format(
+                note_id
+            )
+        try:
+            rowcount = intf_db.update_db(query_statement, commit=True)
+        except Exception as exc:
+            app.logger.warn("{0} query: {1}".format(
+                    query_statement, str(exc)
+                )
+            )
+            return { 'result': False }, 500
+        if rowcount != 1:
+            return { 'result': False }, 201
+        return { 'result': True }, 200
+
+
 api.add_resource(Notes, '/notes')
 api.add_resource(ClausePoints, '/points')
 api.add_resource(Clause, '/clause')
 api.add_resource(UpdatePoint, '/point/update')
+api.add_resource(DeleteNote, '/note/delete')
