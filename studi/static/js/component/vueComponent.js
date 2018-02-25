@@ -1,9 +1,15 @@
-// 루트 인스턴스 생성
-new Vue({
-    el: '#example'
-})
+Vue.component('my-component', {
+    // 옵션
+    props : ['currentClauseContent'],
+    template: '<p>{{ currentClauseContent }}</p>',
+    data : function(){
+        return {
+            currentClauseContent : this.currentClauseContent
+        }
+    }
+  })
 
-var vm = new Vue({
+new Vue({
     el: '#notes',
     data: {
         isOk: false, // default : false

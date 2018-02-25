@@ -33,7 +33,7 @@
     </nav>
 
     <div id="notes">
-        <div id="quiz" v-if="isOk">
+        <div id="quiz" v-if="isOk">      
             <div class="quiz-top-box" style="width:100%;margin:0px 50px;text-align:left">
                     <label><input  type="checkbox" style="width:30px" :true-value="1" :false-value="0" v-model="currentOptions.imp">중요</label>
             </div>
@@ -42,11 +42,9 @@
                 <input id="clause-title" type="text" v-bind:value="currentClauseTitle" readonly>
             </div>
             <div class="collapse" id="collapseContent">
-                <textarea class="" v-bind:value="currentClauseContent" readonly>
-                    </textarea>
+                 <my-component v-bind:current-clause-content="currentClauseContent"></my-component>  
             </div>
-
-            <div id="quiz-bottom-box" style="position:fixed; bottom:0px;width : 100%">
+            <div id="quiz-bottom-box" style="bottom:0px;width : 100%">
                 <div class="und-btn">
                    <!-- <input type="text" v-bind:value="currentOptions.und"> -->
                         <label for="und_0"><input id="und_0" type="radio" name="selectedOptions" :checked="currentOptions.und == 0"  v-bind:value="0" v-on:click="checkUnd">이해못함</label>
@@ -108,7 +106,7 @@
     <script src="../static/js/jquery.min.js"></script>
     <script src="../static/js/bootstrap.min.js"></script>
     <script src="../static/js/File-Input---Beautiful-Input--Button-Approach-Jasny-Bootstrap.js"></script>
-    <script src="../static/js/vue.min.js"></script>
+    <script src="../static/js/vue.min.js"></script>    
     <script src="../static/js/component/vueComponent.js"></script>
     <script src="../static/js/note.js"></script>
 </body>
