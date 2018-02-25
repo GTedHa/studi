@@ -9,6 +9,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'flask>=0.12.0',
-        'flask-restful>=0.3.0'
+        'flask-restful>=0.3.0',
+        'gunicorn>=19.7'
     ],
 )
