@@ -1,6 +1,7 @@
 from flask import render_template
 
 from studi import app
+from studi import intf_db
 
 
 @app.route('/')
