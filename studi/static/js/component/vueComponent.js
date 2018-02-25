@@ -285,7 +285,7 @@ var vm = new Vue({
         checkSurveyPoint : function (el){
             // 선택된 radio's value
             this.checkPoint = el.target.value;
-        },
+        }
     }
 })
 
