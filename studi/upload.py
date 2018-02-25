@@ -20,8 +20,12 @@ class UploadMaterial(Resource):
         parse.add_argument('studi_material', type=werkzeug.datastructures.FileStorage, location='files')
         args = parse.parse_args()
         material = args['studi_material']
+        data = material.stream.read().decode('utf-8')
+        data = replace_special_chars(data)
         filepath = DIRPATH + secure_filename(material.filename)
-        material.save(filepath)
+        with open(filepath, 'wt', encoding='utf-8') as _of:
+            _of.write(data)
+        # TODO: Why save xml file and parse it? just parse it.
         if save_contents_to_db(filepath):
             return { 'result': True }, 200
         else:
@@ -55,3 +59,16 @@ def save_contents_to_db(filepath):
         app.logger.warn("Exception raised during DB insertions: {0}".format(str(exc)))
     os.remove(filepath)
     return result
+
+
+def replace_special_chars(data):
+    data = data.replace('&', '&#38;')
+    data = data.replace('<', '&#60;')
+    data = data.replace('>', '&#62;')
+    data = data.replace('&#60;note', '<note')
+    data = data.replace('&#60;/note&#62;', '</note>')
+    data = data.replace('&#60;item', '<item')
+    data = data.replace('&#60;/item&#62;', '</item>')
+    data = data.replace('\'&#62;', '\'>')
+    data = data.replace('\"&#62;', '\">')
+    return data
