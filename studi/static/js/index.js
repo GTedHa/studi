@@ -24,7 +24,6 @@ $(document).ready(function(){
        })
      })
 
-
      $(document).on('click', '.list-group-item' ,function(){
     
       var noteId = $(this).data('id');
@@ -34,6 +33,7 @@ $(document).ready(function(){
      localStorage.setItem('noteId', noteId);
      localStorage.setItem('noteName', noteName);
      })
+
 
 
      function getNoteList(){
@@ -60,7 +60,17 @@ $(document).ready(function(){
               item.className = "list-group-item";
               item.dataset.id = notes[i].note_id;
 
-              item.appendChild(document.createTextNode(notes[i].note_name));
+              var noteNameItem = document.createElement('span');
+              noteNameItem.className = "noteName-item";
+              noteNameItem.appendChild(document.createTextNode(notes[i].note_name));
+
+              var nextItem = document.createElement('span');
+              nextItem.className = "next-item";
+              nextItem.appendChild(document.createTextNode('>'));
+
+              item.appendChild(noteNameItem);
+              item.appendChild(nextItem);
+              
               atagItem.appendChild(item);
               list.appendChild(atagItem);
             }

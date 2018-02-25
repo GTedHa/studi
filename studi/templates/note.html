@@ -22,18 +22,16 @@
                     <span class="icon-bar"></span>
                 </button>
             </div>
-            <!-- <div class="collapse navbar-collapse" id="navcol-1">
+             <div class="collapse navbar-collapse" id="navcol-1" style="float:right">
                 <ul class="nav navbar-nav">
-                    <li class="active" role="presentation">
-                        <a href="#">First Item</a>
-                    </li>
-                    <li role="presentation">
-                        <a href="#">Second Item</a>
+                    <li id="delete-note" class="active">
+                        <a href="#">현재 노트 삭제</a>
                     </li>
                 </ul>
-            </div> -->
+            </div> 
         </div>
     </nav>
+
     <div id="notes">
         <div id="quiz" v-if="isOk">
             <div class="quiz-top-box" style="width:100%;margin:0px 50px;text-align:left">
@@ -112,6 +110,7 @@
     <script src="../static/js/File-Input---Beautiful-Input--Button-Approach-Jasny-Bootstrap.js"></script>
     <script src="../static/js/vue.min.js"></script>
     <script src="../static/js/component/vueComponent.js"></script>
+    <script src="../static/js/note.js"></script>
 </body>
 
 </html>
