@@ -7,7 +7,7 @@ venv:
 	virtualenv --python=python3 venv && venv/bin/python setup.py develop
 
 run: venv
-	FLASK_APP=studi STUDI_SETTINGS=../settings.cfg venv/bin/flask run --host=0.0.0.0 --port=8080
+	FLASK_APP=studi STUDI_SETTINGS=../settings.cfg venv/bin/flask run --host=0.0.0.0 --port=5000
 
 test: venv
 	STUDI_SETTINGS=../settings.cfg venv/bin/python -m unittest discover -s tests
