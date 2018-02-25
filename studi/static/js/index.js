@@ -16,10 +16,11 @@ $(document).ready(function(){
          contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
          processData: false, // NEEDED, DON'T OMIT THIS
          success : function(data, textStatus, xhr){
+           aler('업로드 성공');
            location.reload(); // 화면 재시작하여 note list 다시 가져오기
          },
          error : function(error){
-          
+          alert('');
          }
        })
      })
