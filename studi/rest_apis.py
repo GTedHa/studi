@@ -143,6 +143,7 @@ class DeleteNote(Resource):
         pass
 
     def delete(self):
+        # TODO: Delete Cluases and ClausePoints related to the note ID.
         parser = reqparse.RequestParser()
         parser.add_argument('note_id', type=int, required=True)
         args = parser.parse_args()
