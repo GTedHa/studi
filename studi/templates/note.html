@@ -48,7 +48,7 @@
 
             <div id="quiz-bottom-box" style="position:fixed; bottom:0px;width : 100%">
                 <div class="und-btn">
-                   <input type="text" v-bind:value="currentOptions.und">
+                   <!-- <input type="text" v-bind:value="currentOptions.und"> -->
                         <label for="und_0"><input id="und_0" type="radio" name="selectedOptions" :checked="currentOptions.und == 0"  v-bind:value="0" v-on:click="checkUnd">이해못함</label>
                         <label for="und_1"> <input  id="und_1" type="radio" name="selectedOptions"  :checked="currentOptions.und == 1" v-bind:value="1"  v-on:click="checkUnd">보통 </label>
                         <label for="und_2"><input  id="und_2" type="radio"name="selectedOptions" :checked="currentOptions.und == 2" v-bind:value="2"  v-on:click="checkUnd">이해함 </label>
