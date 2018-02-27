@@ -1,13 +1,35 @@
 Vue.component('my-component', {
     // 옵션
     props : ['currentClauseContent'],
-    template: '<p>{{ currentClauseContent }}</p>',
+    template: '<p v-html="clauseContent"></p>',
     data : function(){
+        var clauseContent = this.currentClauseContent.replace(/\n/g, "<br /> ")
         return {
-            currentClauseContent : this.currentClauseContent
+            clauseContent
+        }
+    },
+    watch : {
+        'currentClauseContent' : function(val){
+            this.clauseContent = this.currentClauseContent.replace(/\n/g, "<br /> ")
         }
     }
-  })
+});
+
+Vue.component('clause-title', {
+    props : ['currentClauseTitle'],
+    template : '<div> {{clauseTitle}} </div>',
+    data : function(){
+        var clauseTitle = this.currentClauseTitle
+        return {
+            clauseTitle
+        }
+    },
+    watch : {
+    'currentClauseTitle' : function(val){
+        this.clauseTitle = this.currentClauseTitle
+        }
+    }
+});
 
 new Vue({
     el: '#notes',
@@ -56,6 +78,8 @@ new Vue({
             dataType: 'json',
             success: function (data, textStatus, xhr) {
                 self.pointList = data.clause_points;
+                // console.log('포인트 정보를 가져왔습니다');
+                
             },
             error: function (error) {
                 alert('포인트 정보가 없습니다. 관리자에게 문의해주세요');
@@ -151,12 +175,11 @@ new Vue({
                         self.currentClauseId = data.clause_id;
                         self.currentClauseTitle = data.title;
                         self.currentClauseContent = data.contents;
-    
+
                     }, error: function (error) {
                         alert("퀴즈를 불러올 수 없습니다");
                     }
                 })
-
             } else {
                 // 조건에 해당하지 않으므로 다음 cluase로 이동
                 this.next(clauseId);
