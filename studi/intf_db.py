@@ -6,6 +6,7 @@ from studi import module_path
 
 DBPATH = module_path + '/db/studi.db'
 
+
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
@@ -14,30 +15,33 @@ def get_db():
     db.row_factory = sqlite3.Row
     return db
 
+
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
 
-def query_db(query, args=(), one=False):
+
+def query_db(query, *args, one=False):
     cur = get_db().execute(query, args)
     rv = cur.fetchall()
     cur.close()
     return (rv[0] if rv else None) if one else rv
 
-def update_db(query, commit=False):
-    cur = get_db().execute(query)
+
+def update_db(query, *args, commit=False):
+    cur = get_db().execute(query, args)
     if commit:
         get_db().commit()
     rowcount = cur.rowcount
     cur.close()
     return rowcount
 
-def insert_db(query):
-    cur = get_db().execute(query)
+
+def insert_db(query, *args):
+    cur = get_db().execute(query, args)
     get_db().commit()
     lastrowid = cur.lastrowid
     cur.close()
     return lastrowid
-    
