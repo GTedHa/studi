@@ -1,4 +1,4 @@
-Vue.component('my-component', {
+Vue.component('clause-content', {
     // 옵션
     props : ['currentClauseContent'],
     template: '<p v-html="clauseContent"></p>',
