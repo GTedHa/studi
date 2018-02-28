@@ -10,6 +10,7 @@ setup(
     install_requires=[
         'flask>=0.12.0',
         'flask-restful>=0.3.0',
-        'gunicorn>=19.7'
+        'gunicorn>=19.7',
+        'beautifulsoup4>=4.4.0'
     ],
 )
