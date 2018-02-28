@@ -22,40 +22,44 @@
                     <span class="icon-bar"></span>
                 </button>
             </div>
-             <div class="collapse navbar-collapse" id="navcol-1" style="float:right">
+            <div class="collapse navbar-collapse" id="navcol-1" style="float:right">
                 <ul class="nav navbar-nav">
-                    <li id="delete-note" class="active">
+                    <li id="delete-note" class="active"  data-toggle="modal"  data-target="#fileDeleteModal" >
                         <a href="#">현재 노트 삭제</a>
                     </li>
                 </ul>
-            </div> 
+            </div>
         </div>
     </nav>
 
     <div id="notes">
         <div id="quiz" v-if="isOk">
             <div class="quiz-top-box" style="width:100%;margin:0px 50px;text-align:left">
-                    <label><input  type="checkbox" style="width:30px" :true-value="1" :false-value="0" v-model="currentOptions.imp">중요</label>
+                <label>
+                    <input type="checkbox" style="width:30px" :true-value="1" :false-value="0" v-model="currentOptions.imp">중요</label>
             </div>
             <div id='collapse-btn' data-toggle="collapse" data-target="#collapseContent" aria-expanded="false" aria-controls="currentClauseContent">
-                <!-- <input type="text" v-bind:value="currentClauseId"> -->
-                <input id="clause-title" type="text" v-bind:value="currentClauseTitle" readonly>
+                <clause-title v-bind:current-clause-title="currentClauseTitle"></clause-title>
             </div>
             <div class="collapse" id="collapseContent">
-                <textarea class="" v-bind:value="currentClauseContent" readonly>
-                    </textarea>
+                <clause-content v-bind:current-clause-content="currentClauseContent"></clause-content>
             </div>
-
-            <div id="quiz-bottom-box" style="position:fixed; bottom:0px;width : 100%">
+            <div id="quiz-bottom-box" style="bottom:0px;width : 100%">
                 <div class="und-btn">
-                   <input type="text" v-bind:value="currentOptions.und">
-                        <label for="und_0"><input id="und_0" type="radio" name="selectedOptions" :checked="currentOptions.und == 0"  v-bind:value="0" v-on:click="checkUnd">이해못함</label>
-                        <label for="und_1"> <input  id="und_1" type="radio" name="selectedOptions"  :checked="currentOptions.und == 1" v-bind:value="1"  v-on:click="checkUnd">보통 </label>
-                        <label for="und_2"><input  id="und_2" type="radio"name="selectedOptions" :checked="currentOptions.und == 2" v-bind:value="2"  v-on:click="checkUnd">이해함 </label>
+                    <!-- <input type="text" v-bind:value="currentOptions.und"> -->
+                    <label for="und_0">
+                        <input id="und_0" type="radio" name="selectedOptions" :checked="currentOptions.und == 0" v-bind:value="0"
+                            v-on:click="checkUnd">이해못함</label>
+                    <label for="und_1">
+                        <input id="und_1" type="radio" name="selectedOptions" :checked="currentOptions.und == 1" v-bind:value="1"
+                            v-on:click="checkUnd">보통 </label>
+                    <label for="und_2">
+                        <input id="und_2" type="radio" name="selectedOptions" :checked="currentOptions.und == 2" v-bind:value="2"
+                            v-on:click="checkUnd">이해함 </label>
                 </div>
                 <div>
                     <label for="timer">
-                        <input type="number" v-bind:value="totalTime" style="width:100px;" readonly> 초 </label>
+                        <input type="number" v-bind:value="totalTime" style="width : 60px; margin:5px" readonly> 초 </label>
                 </div>
                 <div>
                     <div class="btn-group" role="group">
@@ -68,9 +72,8 @@
         </div>
         <div id="survey" v-else>
             <div id="title-box">
-                <span style="margin:0px 5px;">주제 </span>
-
-                <input id="title" type="text" style="width:80%;/*float:right;*/margin:0px 13px;" v-bind:value="title">
+                <input id="title" type="text" style="font-weight:600;font-size:16px;text-align:center;width:80%;border:none;margin:0px 13px;"
+                    v-bind:value="title">
             </div>
             <div>
                 <div class="radio">
@@ -91,26 +94,49 @@
                 </div>
                 <div class="radio">
                     <label>
-                        <input type="radio" name='options' v-bind:value="5" :checked="checkPoint == 5"  v-on:click="checkSurveyPoint">모르는 것만 보기</label>
+                        <input type="radio" name='options' v-bind:value="5" :checked="checkPoint == 5" v-on:click="checkSurveyPoint">모르는 것만 보기</label>
                 </div>
             </div>
             <div>
                 <span>타이머</span>
-                <input type="number" v-model="timer" style="width : 100px" >
+                <input type="number" v-model="timer" style="width : 60px; margin:5px">
                 <span>초</span>
             </div>
             <div>
                 <button id="start" class="btn btn-default" type="button" v-on:click="start">시작</button>
             </div>
         </div>
-    </div>
+        <!-- Modal -->
+        <div class="modal fade" id="fileDeleteModal" tabindex="-1" role="dialog" aria-labelledby="fileDeleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="fileDeleteModalLabel">파일 삭제</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div> 파일명 :
+                            <span id="file-name"></span>
+                        </div>
+                        <div>해당 파일을 삭제 하시겠습니까? </div>
 
-    <script src="../static/js/jquery.min.js"></script>
-    <script src="../static/js/bootstrap.min.js"></script>
-    <script src="../static/js/File-Input---Beautiful-Input--Button-Approach-Jasny-Bootstrap.js"></script>
-    <script src="../static/js/vue.min.js"></script>
-    <script src="../static/js/component/vueComponent.js"></script>
-    <script src="../static/js/note.js"></script>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="close" type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                        <button id="delete-file" type="button" class="btn btn-primary">삭제</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 </body>
 
+<script src="../static/js/jquery.min.js"></script>
+<script src="../static/js/bootstrap.min.js"></script>
+<script src="../static/js/File-Input---Beautiful-Input--Button-Approach-Jasny-Bootstrap.js"></script>
+<script src="../static/js/vue.min.js"></script>
+<script src="../static/js/component/vueComponent.js"></script>
+<script>
+</script>
 </html>
