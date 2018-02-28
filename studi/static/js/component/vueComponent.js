@@ -1,32 +1,32 @@
 Vue.component('clause-content', {
     // 옵션
-    props : ['currentClauseContent'],
+    props: ['currentClauseContent'],
     template: '<p v-html="clauseContent"></p>',
-    data : function(){
+    data: function () {
         var clauseContent = this.currentClauseContent.replace(/\n/g, "<br /> ")
         return {
             clauseContent
         }
     },
-    watch : {
-        'currentClauseContent' : function(val){
+    watch: {
+        'currentClauseContent': function (val) {
             this.clauseContent = this.currentClauseContent.replace(/\n/g, "<br /> ")
         }
     }
 });
 
 Vue.component('clause-title', {
-    props : ['currentClauseTitle'],
-    template : '<div> {{clauseTitle}} </div>',
-    data : function(){
+    props: ['currentClauseTitle'],
+    template: '<div> {{clauseTitle}} </div>',
+    data: function () {
         var clauseTitle = this.currentClauseTitle
         return {
             clauseTitle
         }
     },
-    watch : {
-    'currentClauseTitle' : function(val){
-        this.clauseTitle = this.currentClauseTitle
+    watch: {
+        'currentClauseTitle': function (val) {
+            this.clauseTitle = this.currentClauseTitle
         }
     }
 });
@@ -36,30 +36,58 @@ new Vue({
     data: {
         isOk: false, // default : false
         timer: 0, // timer
-        totalTime : 0, // timer
+        totalTime: 0, // timer
         title: 'basic title',
         noteId: null,
         pointList: [],
         currentClauseId: null, // 현재 보여지고 있는 clause
-        currentClauseTitle : '',
-        currentClauseContent : '',
-        currentIndex : '',
-        checkPoint : 1, // survey's value, default : 1 (전체 보기)
-        isAvailClause : false, // 조건에 해당하는 clause 인지 여부
-        currentOptions : {
+        currentClauseTitle: '',
+        currentClauseContent: '',
+        currentIndex: '',
+        checkPoint: 1, // survey's value, default : 1 (전체 보기)
+        isAvailClause: false, // 조건에 해당하는 clause 인지 여부
+        currentOptions: {
             imp: 1, // 0 : 안중요, 1 : 중요
             und: 2, // 0 : 이해x, 1 : 보통,  2 : 이해 o
         },
-        constCurrentOptions : {
+        constCurrentOptions: {
             imp: 1, // 0 : 안중요, 1 : 중요
             und: 2, // 0 : 이해x, 1 : 보통,  2 : 이해 o
-        },
-        firstClauseId : null,
-        radio : 0,
-        isChanged : false,
-        tiemrObj : null
+        }, 
+        firstClauseId: null,
+        radio: 0,
+        isChanged: false,
+        tiemrObj: null
     },
     created: function () {
+        $(document).on('click', '#delete-note', function(e) {
+            var noteName = localStorage.getItem('noteName');
+            $('#file-name').text(noteName);
+        })
+
+        $(document).on('click', '#delete-file', function (e) {
+            var $this = $(e);
+            var noteId = localStorage.getItem('noteId');
+
+            $.ajax({
+                url: "/note/delete",
+                type: 'delete', 
+                data: {
+                    'note_id': Number(noteId)
+                },
+                dataType: 'json',
+                success: function (data, textStatus, xhr) {
+                    // 성공 시 메인(index.html)로 이동
+                    location.href = '../';
+                },
+                error: function (error) {
+                    alert('삭제 실패');
+                }
+            })
+
+        })
+
+
         var noteId = localStorage.getItem('noteId');
         var noteName = localStorage.getItem('noteName');
         var self = this; // ajax에서는 this에 대한 scope가 변경되므로 this를 담아서 전달해주어야 함
@@ -79,7 +107,7 @@ new Vue({
             success: function (data, textStatus, xhr) {
                 self.pointList = data.clause_points;
                 // console.log('포인트 정보를 가져왔습니다');
-                
+
             },
             error: function (error) {
                 alert('포인트 정보가 없습니다. 관리자에게 문의해주세요');
@@ -88,7 +116,7 @@ new Vue({
 
     },
     methods: {
-        filterClause : function(thisPoint){
+        filterClause: function (thisPoint) {
             /*
              현재의 cluase가 survey 조건과 부합하면 true,
                                        부합하지 않으면 false 
@@ -100,55 +128,55 @@ new Vue({
                           5 (모르는 것만 보기, und = 0 )
             */
             switch (Number(this.checkPoint)) {
-                case 1 : 
-                // 전체보기
+                case 1:
+                    // 전체보기
+                    this.isAvailClause = true;
+                    break;
+                case 2:
+                    // 중요한 것만 보기 (Imp = 1)
+                    if (thisPoint.imp == 1) {
                         this.isAvailClause = true;
-                        break;
-                case 2 : 
-                // 중요한 것만 보기 (Imp = 1)
-                        if (thisPoint.imp == 1) {
-                            this.isAvailClause = true;
-                        } else {
-                            this.isAvailClause = false;
-                        }
-                         break;
-                case 3 : 
-                // 아는 것만 보기 (und = 2)
-                        if (thisPoint.und == 2) {
-                            this.isAvailClause = true;
-                        } else {
-                            this.isAvailClause = false;
-                        }
-                         break;
-                case 4 : 
-                // 애매한 것만 보기 (und = 1)
-                        if (thisPoint.und == 1) {
-                            this.isAvailClause = true;
-                        } else {
-                            this.isAvailClause = false;
-                        }                     
-                         break;
-                case 5 :
-                // 모르는 것만 보기 (und = 0)
-                        if (thisPoint.und == 0) {
-                            this.isAvailClause = true;
-                        } else {
-                            this.isAvailClause = false;
-                        }
-                         break;       
+                    } else {
+                        this.isAvailClause = false;
+                    }
+                    break;
+                case 3:
+                    // 아는 것만 보기 (und = 2)
+                    if (thisPoint.und == 2) {
+                        this.isAvailClause = true;
+                    } else {
+                        this.isAvailClause = false;
+                    }
+                    break;
+                case 4:
+                    // 애매한 것만 보기 (und = 1)
+                    if (thisPoint.und == 1) {
+                        this.isAvailClause = true;
+                    } else {
+                        this.isAvailClause = false;
+                    }
+                    break;
+                case 5:
+                    // 모르는 것만 보기 (und = 0)
+                    if (thisPoint.und == 0) {
+                        this.isAvailClause = true;
+                    } else {
+                        this.isAvailClause = false;
+                    }
+                    break;
             }
-        }, 
+        },
         showClause: function (clauseId) {
             // 보여질 예정인 clauseId의 point 정보 search
             var thisClausePoint = this.searchPointInfo(clauseId);
 
             // 해당 point 정보가 this.checkPoint 조건에 맞는지 검사
-                this.filterClause(thisClausePoint);
+            this.filterClause(thisClausePoint);
 
             if (this.isAvailClause) {
-                this.isOk = true; 
+                this.isOk = true;
                 // todo 변경 여부 상관 없이 일단 업데이트 하도록 하기 위함
-                  // 업데이트 시킬 value
+                // 업데이트 시킬 value
                 this.currentOptions.imp = thisClausePoint.imp;
                 this.currentOptions.und = thisClausePoint.und;
 
@@ -157,12 +185,12 @@ new Vue({
                 this.constCurrentOptions.und = thisClausePoint.und;
 
                 var $collapseContent = $('#collapseContent');
-                if($collapseContent.hasClass('in')){
+                if ($collapseContent.hasClass('in')) {
                     $('#collapse-btn').click();
                 }
-    
+
                 var self = this;
-    
+
                 $.ajax({
                     url: "/clause",
                     type: 'POST',
@@ -185,41 +213,41 @@ new Vue({
                 this.next(clauseId);
             }
         },
-        searchPointInfo : function (clauseId) {
-           for( obj of this.pointList){
-               // 해당 clause의 point 정보를 찾음
-               if(obj.clause_id == clauseId){
-                   return obj; // 일치하는 point 정보를 반환
-               }
-           }
+        searchPointInfo: function (clauseId) {
+            for (obj of this.pointList) {
+                // 해당 clause의 point 정보를 찾음
+                if (obj.clause_id == clauseId) {
+                    return obj; // 일치하는 point 정보를 반환
+                }
+            }
         },
-        updateClause : function (clauseId){
+        updateClause: function (clauseId) {
             var self = this;
 
             $.ajax({
-                url : "/point/update",
-                type : 'PUT',
-                async : false,
-                data : {
-                    clause_id : this.currentClauseId,
-                    imp : this.currentOptions.imp,
-                    und : this.currentOptions.und
+                url: "/point/update",
+                type: 'PUT',
+                async: false,
+                data: {
+                    clause_id: this.currentClauseId,
+                    imp: this.currentOptions.imp,
+                    und: this.currentOptions.und
                 },
-                dataType : 'json',
-                success : function (data, textStatus, xhr){
+                dataType: 'json',
+                success: function (data, textStatus, xhr) {
                     // this.pointlist에서 해당 clause를 찾아서 value를 변경
-                    for( obj of self.pointList){
-                        if(obj.clause_id == self.currentClauseId){
+                    for (obj of self.pointList) {
+                        if (obj.clause_id == self.currentClauseId) {
                             // 변경한 clause 정보
                             obj.imp = self.currentOptions.imp;
                             obj.und = self.currentOptions.und;
                         }
                     }
-                }, error : function (error) {
+                }, error: function (error) {
                     alert('업데이트에 실패하였습니다');
                 }
             })
-          
+
         },
         start: function () {
             this.startTimer(); // timer
@@ -228,7 +256,7 @@ new Vue({
         next: function (currentClauseId) {
             // todo 변경 사항이 있을 경우만 업데이트 
             // if (this.isAvailClauses) { //&& this.isChanged
-                this.updateClause(currentClauseId);
+            this.updateClause(currentClauseId);
             // }
 
             var currentIndex = 0;
@@ -241,31 +269,31 @@ new Vue({
                         alert('해당 조건의 퀴즈가 존재하지 않습니다');
                         return;
                     } else {
-                    currentIndex ++;
-                    // 현재의 퀴즈 객체까지 왔을 때 다음 clause를 currentClauseId에 넣어준다
-                    this.currentClauseId = this.pointList[currentIndex].clause_id;
-                    
-                    this.showClause(this.currentClauseId);
-                    this.startTimer(); // timer
-                    return;   
+                        currentIndex++;
+                        // 현재의 퀴즈 객체까지 왔을 때 다음 clause를 currentClauseId에 넣어준다
+                        this.currentClauseId = this.pointList[currentIndex].clause_id;
+
+                        this.showClause(this.currentClauseId);
+                        this.startTimer(); // timer
+                        return;
                     }
                 } else {
-                    currentIndex ++;
+                    currentIndex++;
                 }
             }
         },
-        prev : function () {
+        prev: function () {
             this.startTimer(); // timer
             // todo 변경 사항이 있을 경우만 업데이트 
             // if (this.isAvailClauses) { //&& this.isChanged
-                this.updateClause(this.currentClauseId);
+            this.updateClause(this.currentClauseId);
             // }
             var prevClauseId = 0;
             var currentIndex = 0;
-            for(clause of this.pointList){
-                if(this.currentClauseId === clause.clause_id){
+            for (clause of this.pointList) {
+                if (this.currentClauseId === clause.clause_id) {
                     // first caluse 
-                    if(currentIndex === 0){
+                    if (currentIndex === 0) {
                         // 첫 퀴즈
                         this.isOk = false;
                         // todo servey 쪽으로 이동
@@ -283,8 +311,8 @@ new Vue({
         startTimer: function () {
             this.totalTime = Number(this.timer); // 사용자가 입력한 time을 저장함 
             var self = this;
-            
-            if(this.timerObj != null){
+
+            if (this.timerObj != null) {
                 // 기존에 실행하던 타이머가 있다면 종료
                 clearInterval(this.timerObj);
             }
@@ -293,10 +321,10 @@ new Vue({
                     self.totalTime--;
                 }
 
-                if(Number(self.totalTime) === 0){
+                if (Number(self.totalTime) === 0) {
                     var $collapseContent = $('#collapseContent');
                     // todo 여기서 collapse 열기 동작 실행
-                    if(!$collapseContent.hasClass('in')){
+                    if (!$collapseContent.hasClass('in')) {
                         $('#collapse-btn').click();
                     }
 
@@ -305,13 +333,13 @@ new Vue({
                 }
             }, 1000);
         },
-        checkImp : function(){ 
+        checkImp: function () {
         },
-        checkUnd : function(el){   
+        checkUnd: function (el) {
             var und = el.target.value;
             this.currentOptions.und = und;
         },
-        checkSurveyPoint : function (el){
+        checkSurveyPoint: function (el) {
             // 선택된 radio's value
             this.checkPoint = el.target.value;
         }
