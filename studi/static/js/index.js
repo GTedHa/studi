@@ -2,26 +2,39 @@ $(document).ready(function(){
 
      getNoteList(); // 노트 리스트 정보 가져오기
 
+     $(document).on('click','#upload-file', function(){
+      var selectedfile = $('#studi_material').prop("files")[0];
+
+      $('#file-name').text(selectedfile.name);
+      var formData = new FormData();
+      formData.append("studi_material", selectedfile); 
+
+      $.ajax({
+        url : "/upload",
+        type : 'POST',
+        data : formData,
+        contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+        processData: false, // NEEDED, DON'T OMIT THIS
+        async : true,
+        success : function(data, textStatus, xhr){
+          location.reload(); // 화면 재시작하여 note list 다시 가져오기
+        },
+        error : function(error){
+         alert('업로드 실패');
+         location.reload(); // 화면 재시작하여 note list 다시 가져오기
+        }
+      })
+     })
+
+     // 모달 종료 시 재시작
+     // todo 파일 업로드 하는 ui에서 bootstrap 제거
+     $(document).on('click', '#close', function(){
+        location.reload();
+     })
+
      $('#studi_material').change(function(e){
        var selectedfile = $('#studi_material').prop("files")[0];
-
-       var formData = new FormData();
-       formData.append("studi_material", selectedfile); 
-
-       $.ajax({
-         url : "/upload",
-         type : 'POST',
-         data : formData,
-         contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
-         processData: false, // NEEDED, DON'T OMIT THIS
-         success : function(data, textStatus, xhr){
-           alert('업로드 성공');
-           location.reload(); // 화면 재시작하여 note list 다시 가져오기
-         },
-         error : function(error){
-          alert('업로드 실패');
-         }
-       })
+       $('#file-name').text(selectedfile.name);
      })
 
      $(document).on('click', '.list-group-item' ,function(){
