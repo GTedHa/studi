@@ -6,8 +6,7 @@ $(document).ready(function(){
        var selectedfile = $('#studi_material').prop("files")[0];
 
        var formData = new FormData();
-       formData.append("studi_material", selectedfile) 
-
+       formData.append("studi_material", selectedfile); 
 
        $.ajax({
          url : "/upload",
@@ -53,29 +52,32 @@ $(document).ready(function(){
             var list = document.createElement('ul');
             list.className = "list-group";
 
-            for(var i = 0; i < notes.length; i++){
-              var atagItem = document.createElement('a');
-              atagItem.href = 'note/' + notes[i].note_id;
-
-              var item = document.createElement('li');
-              item.className = "list-group-item";
-              item.dataset.id = notes[i].note_id;
-
-              var noteNameItem = document.createElement('span');
-              noteNameItem.className = "noteName-item";
-              noteNameItem.appendChild(document.createTextNode(notes[i].note_name));
-
-              var nextItem = document.createElement('span');
-              nextItem.className = "next-item";
-              nextItem.appendChild(document.createTextNode('>'));
-
-              item.appendChild(noteNameItem);
-              item.appendChild(nextItem);
-              
-              atagItem.appendChild(item);
-              list.appendChild(atagItem);
+            // 저장된 note가 있는 경우에만 Item을 추가
+            if (notes && notes.length > 0) {
+              for(var i = 0; i < notes.length; i++){
+                var atagItem = document.createElement('a');
+                atagItem.href = 'note/' + notes[i].note_id;
+  
+                var item = document.createElement('li');
+                item.className = "list-group-item";
+                item.dataset.id = notes[i].note_id;
+  
+                var noteNameItem = document.createElement('span');
+                noteNameItem.className = "noteName-item";
+                noteNameItem.appendChild(document.createTextNode(notes[i].note_name));
+  
+                var nextItem = document.createElement('span');
+                nextItem.className = "next-item";
+                nextItem.appendChild(document.createTextNode('>'));
+  
+                item.appendChild(noteNameItem);
+                item.appendChild(nextItem);
+                
+                atagItem.appendChild(item);
+                list.appendChild(atagItem);
+              }
             }
-
+          
             $('.notes-box').append(list);
 
           } else if (xhr.status === 500) {
