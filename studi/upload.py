@@ -45,7 +45,19 @@ def save_contents_to_db(data):
         note_id = studi.intf_db.insert_db(ins_note_qry, note_name)
         for item in bs.find_all('item'):
             title = item['title']
+            title = title.replace("<", "&lt;")
+            title = title.replace("<", "&gt;")
+            title = title.replace("&", "&amp;")
+            title = title.replace("\"", "&quot;")
+            title = title.replace("\'", "&apos;")
+            title = title.replace("\n", "<br/>")
             content = item.string
+            content = content.replace("<", "&lt;")
+            content = content.replace("<", "&gt;")
+            content = content.replace("&", "&amp;")
+            content = content.replace("\"", "&quot;")
+            content = content.replace("\'", "&apos;")
+            content = content.replace("\n", "<br/>")
             ins_clause_qry = \
                 "INSERT INTO Clauses(note_id, title, contents) VALUES(?, ?, ?)"
             clause_id = \
