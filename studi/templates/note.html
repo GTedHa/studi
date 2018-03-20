@@ -34,8 +34,8 @@
 
     <div id="notes">
         <div id="quiz" v-if="isOk">
-            <div class="quiz-top-box" style="width:100%;margin:0px 50px;text-align:left">
-                <label>
+            <div class="quiz-top-box" style="width:100%;text-align:left">
+                <label style="margin-left : 4%">
                     <input type="checkbox" style="width:30px" :true-value="1" :false-value="0" v-model="currentOptions.imp">중요</label>
             </div>
             <div id='collapse-btn' data-toggle="collapse" data-target="#collapseContent" aria-expanded="false" aria-controls="currentClauseContent">
