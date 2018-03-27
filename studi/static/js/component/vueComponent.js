@@ -17,16 +17,16 @@ Vue.component('clause-content', {
 
 Vue.component('clause-title', {
     props: ['currentClauseTitle'],
-    template: '<div> {{clauseTitle}} </div>',
+    template: '<div v-html="clauseTitle"></div>',
     data: function () {
-        var clauseTitle = this.currentClauseTitle
+        var clauseTitle = this.currentClauseTitle.replace(/\n/g, "<br /> ")
         return {
             clauseTitle
         }
     },
     watch: {
         'currentClauseTitle': function (val) {
-            this.clauseTitle = this.currentClauseTitle
+            this.clauseTitle = this.currentClauseTitle.replace(/\n/g, "<br /> ")
         }
     }
 });
