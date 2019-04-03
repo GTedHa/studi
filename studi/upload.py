@@ -1,37 +1,49 @@
-import os
 from bs4 import BeautifulSoup
-
 from flask import request
-from flask_restful import Resource, Api, reqparse
-import werkzeug
+from flask_restful import Resource, Api
 from werkzeug.utils import secure_filename
 
 import studi
 from studi import app
 from studi import module_path
 
+
+import csv
+
 DIRPATH = module_path + '/uploads/'
 api = Api(app)
 
-
-class UploadMaterial(Resource):
+class UploadCSVMaterial(Resource):
 
     def post(self):
-        parse = reqparse.RequestParser()
-        parse.add_argument(
-            'studi_material',
-            type=werkzeug.datastructures.FileStorage,
-            location='files')
-        args = parse.parse_args()
-        material = args['studi_material']
-        data = material.stream.read().decode('utf-8')
-        if save_contents_to_db(data):
-            return {'result': True}, 200
-        else:
-            return {'result': False}, 400
+        try:
+            file_name = request.files['studi_material'].filename
+
+            # Cross-site scripting (XSS)
+            if file_name[-3:] != "csv":
+                app.logger.warn(
+                    "Exception raised during upload new file file name is : {0}".format(file_name))
+                return {'result' : False, \
+                        'description' : "file's extenstion is not .csv. You should upload csv file. \
+                        Uploaded file name is : {0}".format(file_name)}, 400
 
 
-api.add_resource(UploadMaterial, '/upload')
+            temp = request.files['studi_material']
+            csvfile = temp.read().decode("utf-8").splitlines()
+            note = csv.DictReader(csvfile)
+            if save_csv_contents_to_db(file_name[:-3], note):
+                return {'result': True}, 200
+            else:
+                return {'result': False}, 400
+        except Exception as e:
+            print(e)
+
+
+api.add_resource(UploadCSVMaterial, '/upload')
+
+
+def save_csv_contents_to_db(file_name, note):
+    pass
 
 
 def save_contents_to_db(data):
@@ -72,3 +84,4 @@ def save_contents_to_db(data):
         app.logger.warn(
             "Exception raised during DB insertions: {0}".format(exc))
     return result
+
