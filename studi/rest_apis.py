@@ -1,37 +1,34 @@
-from flask import request, jsonify, Response
-from flask_restful import reqparse, Api, Resource
 
+from flask_restful import reqparse, Api, Resource
+from studi import sqlite_db
 from studi import app
 from studi import intf_db
+from studi.sqlite_db import Note, Clauses, ClausePoints
 
 api = Api(app)
 
 
 class Notes(Resource):
-
     def __init__(self):
         pass
 
     def post(self):
         try:
-            rv = intf_db.query_db(
-                "SELECT * FROM Notes"
-            )
+            result = sqlite_db.get_all_data_from_db(Note)
         except Exception as exc:
-            app.logger.warn("Exception raised during 'SELECT * FROM Notes;' query: {0}".format(
-                str(exc)
-            ))
-            return { 'notes': None }, 500
-        if rv:
-            notes = []       
-            for item in rv:
+            app.logger.warn("Exception raised during 'Get date from Notes; {0}".format(str(exc)))
+            return {'notes' : None}, 500
+
+        if result:
+            notes = []
+            for item in result:
                 note = dict()
-                for key in item.keys():
-                    note[key] = item[key]
+                for name in Note.column:
+                    note[name] = getattr(item, name)
                 notes.append(note)
-            return { 'notes': notes }, 200
+            return {'notes' : notes}, 200
         else:
-            return { 'notes': None }, 201
+            return {'notes' : None}, 201
 
 
 class ClausePoints(Resource):
