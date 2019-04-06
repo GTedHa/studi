@@ -5,6 +5,8 @@ import unittest
 import studi
 from studi import sqlite_db
 from flask_sqlalchemy import SQLAlchemy
+from studi import upload
+import csv
 
 
 def gen_logger(test_name):
@@ -19,20 +21,20 @@ def gen_logger(test_name):
 
 test_name = "test_insert_db"
 logger = gen_logger(test_name)
-#
-# sqlite_db.create_db(production=False)
-# print('11')
 
 class TestInsertDB(unittest.TestCase):
-
+    """
+    if you want to skip some function, use it.
+    @unittest.skip("skipping")
+    """
 
     def setUp(self):
         studi.app.testing = True
         self.app = studi.app.test_client()
         # create new testing db
         if os.path.exists("../studi/db/test_studi.db"):
-            sqlite_db.drop_db(production=False)
-        self.db = sqlite_db.create_db(production=False)
+            sqlite_db.drop_db(False)
+        self.db = sqlite_db.create_db(False)
 
 
     def test_insert_note_db(self):
@@ -73,12 +75,20 @@ class TestInsertDB(unittest.TestCase):
 
 
     def test_insert_csv_to_db(self):
-        pass
+        with studi.app.app_context():
+            if os.path.exists('../studi/uploads/studi_test_file.csv'):
+                try:
+                    note_id = upload.insert_csv_to_db()
+                except:
+                    logger.debug("Cannot read csv file Even though csv file exists")
+                else:
+                    self.assertIsNotNone(note_id)
+            else:
+                logger.debug("There is not csv file")
+
 
     def tearDown(self):
-        sqlite_db.drop_db(production=False)
         studi.app.testing = False
-
 
 
 if __name__ == "__main__":
