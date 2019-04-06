@@ -2,13 +2,11 @@ from studi import app
 from flask_sqlalchemy import SQLAlchemy
 
 
-
 # if set to True(default) Falst-SQLAlchemy will track modifications of object and emit signals.
 # This requires extra memory and can be disabled if not needed.
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/studi.db'
 db = SQLAlchemy(app)
-
 
 
 class Note(db.Model):
@@ -55,8 +53,9 @@ class ClausePoints(db.Model):
 
 
 # Create table (defalut, production = False)
-def create_db(**kwargs):
-    if kwargs['production']:
+def create_db(Production=False):
+    if Production:
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/studi.db'
         db.create_all()
         return
 
@@ -65,10 +64,12 @@ def create_db(**kwargs):
     db.create_all()
     return db
 
-def drop_db(**kwrgs):
-    if kwrgs['production']:
+def drop_db(Production=False):
+    if Production:
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/studi.db'
         db.drop_all()
         return
+
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/test_studi.db'
     db.drop_all()
     return db

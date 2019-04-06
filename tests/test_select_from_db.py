@@ -22,7 +22,10 @@ test_name = "test_select_from_db"
 logger = gen_logger(test_name)
 
 class TestSelectDB(unittest.TestCase):
-
+    """
+    if you want to skip some function, use it.
+    @unittest.skip("skipping")
+    """
 
     def setUp(self):
         self.app = app.test_client()
@@ -31,19 +34,19 @@ class TestSelectDB(unittest.TestCase):
 
         # create new testing db & insert dummy data
         if os.path.exists("../studi/db/test_studi.db"):
-            sqlite_db.drop_db(production=False)
-        self.db = sqlite_db.create_db(production=False)
+            sqlite_db.drop_db(False)
+        self.db = sqlite_db.create_db(False)
         upload.insert_csv_to_db(False)
 
 
     def test_select_all_notes(self):
         with app.app_context():
             try:
+                result = None
                 result = sqlite_db.get_all_data_from_db(Note)
             except:
                 logger.debug('Cannot select Notes')
             else:
-                self.assertIsNotNone(result)
                 if result:
                     notes = []
                     for item in result:
@@ -51,16 +54,18 @@ class TestSelectDB(unittest.TestCase):
                         for key in item.column:
                             note[key] = getattr(item, key)
                         notes.append(note)
-
+            finally:
+                self.assertIsNotNone(result)
+                self.assertTrue(result)
 
     def test_select_clauses_by_note_id(self):
         with app.app_context():
             try:
+                result = None
                 result = sqlite_db.get_item_from_db(Clauses, {'note_id':1})
             except:
-                logger.debug("Cannot select Clauses by note_id, note_id : 1")
+                logger.debug("Cannot select Clauses, note_id : 1, note_id : 1")
             else:
-                self.assertIsNotNone(result)
                 if result:
                     clauses = []
                     for item in result:
@@ -69,16 +74,19 @@ class TestSelectDB(unittest.TestCase):
                             clause[key] = getattr(item, key)
                             self.assertIsNotNone(clause[key])
                         clauses.append(clause)
+            finally:
+                self.assertIsNotNone(result)
+                self.assertTrue(result)
 
 
     def test_select_clausePoints_by_note_id(self):
         with app.app_context():
             try:
+                result = None
                 result = sqlite_db.get_item_from_db(ClausePoints, {'note_id':1, 'clause_id':1})
             except:
-                logger.debug("Cannot select ClausePoints_by_note_id, note_id : 1, caluse_id : 1")
+                logger.debug("Cannot select ClausePoints, note_id : 1, caluse_id : 1")
             else:
-                self.assertIsNotNone(result)
                 if result:
                     clausePoints = []
                     for item in result:
@@ -87,6 +95,10 @@ class TestSelectDB(unittest.TestCase):
                             clausePoint[key] = getattr(item, key)
                             self.assertIsNotNone(clausePoint[key])
                         clausePoints.append(clausePoint)
+            finally:
+                self.assertIsNotNone(result)
+                self.assertTrue(result)
+
 
 if __name__ == '__main__':
     unittest.main()
