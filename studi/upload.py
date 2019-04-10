@@ -36,7 +36,7 @@ class UploadCSVMaterial(Resource):
         except Exception as e:
             print(e)
 
-# api.add_resource(UploadCSVMaterial, '/upload')
+api.add_resource(UploadCSVMaterial, '/upload')
 
 def save_csv_contents_to_db(file_name, note, Production=False):
     if Production:
@@ -77,7 +77,3 @@ def insert_csv_to_db(Production=False):
         note = csv.DictReader(csv_file)
         note_id = save_csv_contents_to_db('studi_test_file', note)
     return note_id
-
-
-if __name__ == "__main__":
-    insert_csv_to_db()

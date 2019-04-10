@@ -1,4 +1,5 @@
 from studi import app
+from sqlalchemy import or_
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -17,6 +18,9 @@ class Note(db.Model):
     def __init__(self, notename):
         self.note_name = notename
 
+    clauses = db.relationship("Clauses", cascade="all, delete")
+    clausePoints = db.relationship('ClausePoints', cascade="all, delete")
+
 
 class Clauses(db.Model):
     column = ['clause_id', 'note_id', 'title', 'contents']
@@ -25,10 +29,9 @@ class Clauses(db.Model):
     title = db.Column(db.Text, nullable=False)
     contents = db.Column(db.Text, nullable=False)
 
-    # setting for foreignkey
-    Note = db.relationship('Note', backref=db.backref('clauses', lazy=True))
+    clausePoints = db.relationship('ClausePoints', cascade="all, delete")
 
-    def __init__(self, noteid, title, contents):
+    def __init__(self, noteid=None, title=None, contents=None):
         self.note_id = noteid
         self.title = title
         self.contents = contents
@@ -41,11 +44,7 @@ class ClausePoints(db.Model):
     imp = db.Column(db.Integer, nullable=False, default=0)
     und = db.Column(db.Integer, nullable=False, default=0)
 
-    # setting for foreignkey
-    Clauses = db.relationship('Clauses', backref=db.backref('clausePoints', lazy=True))
-    Note = db.relationship('Note', backref=db.backref('clausePoints', lazy=True))
-
-    def __init__(self, clauseid, noteid, imp=0, und=0):
+    def __init__(self, clauseid=None, noteid=None, imp=0, und=0):
         self.clause_id = clauseid
         self.note_id = noteid
         self.imp = imp
@@ -103,34 +102,56 @@ def get_item_from_db(table, *args):
     args = args[0]
     query = db.session.query(table)
     for attr, value in args.items():
-        query.filter(getattr(table, attr) == value)
-    result = query.all()
-    return result
+        value = value
+
+        if not isinstance(value, list):
+            value = [value]
+
+        or_query = []
+        for v in value:
+            or_query.append(getattr(table, attr) == v)
+        query = query.filter(or_(*or_query))
+    items = query.all()
+    return items
 
 
 #delete all data where *args
-#@Todo if note have to be deleted, consider that forienKey in clauses, clausePoints table
 def delete_data_from_db(table, *args):
     """
     :param table: Data model object (Note, Clause, ClausePoints)
     :param args: condition where you use in 'where' statement
     :return: (dict) result
+
+    ex)
+    args = {'note_id' : [1,2], 'note_name' : 'test1'}
+    ('note_id' : 1 or 'note_id' : 2) and ('note_name' : 'test1')
     """
     args = args[0]
     query = db.session.query(table)
     for attr, value in args.items():
-        query.filter(getattr(table, attr) == value)
+        value = value
+
+        if not isinstance(value, list):
+            value = [value]
+
+        or_query = []
+        for v in value:
+            or_query.append(getattr(table, attr) == v)
+        query = query.filter(or_(*or_query))
     items = query.all()
-    result = []
+
     for item in items:
         db.session.delete(item)
         db.session.commit()
-        result.append(item.note_id)
-    return result
 
 
-def delete_note_and_related_data_from_db(node_id):
-    pass
+# delete only one note
+def delete_note_and_related_data_from_db(note_id):
+    query = db.session.query(Note)
+    note = query.filter(getattr(Note, 'note_id') == note_id).all()
+    # all() return list []
+    db.session.delete(note[0])
+    db.session.commit()
 
 
 # update data where condition (clause_id, note_id)
@@ -148,3 +169,4 @@ def update_data_to_db(table, condition, update_data):
     for attr, value in update_data.items():
         item[attr] = value
     db.session.commit()
+
