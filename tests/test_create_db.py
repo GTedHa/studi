@@ -36,11 +36,11 @@ class TestCreateDB(unittest.TestCase):
                 logger.info("create db success!")
             except:
                 logger.debug("Cannot create db..")
-
-            table_names = db.engine.table_names()
-            self.assertIn('note', table_names)
-            self.assertIn('clauses', table_names)
-            self.assertIn('clause_points', table_names)
+            else:
+                table_names = db.engine.table_names()
+                self.assertIn('note', table_names)
+                self.assertIn('clauses', table_names)
+                self.assertIn('clause_points', table_names)
 
     def test_delete_db(self):
         with studi.app.app_context():
