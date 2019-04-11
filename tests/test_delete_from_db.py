@@ -61,7 +61,7 @@ class TestDeleteDB(unittest.TestCase):
 
 
     # Delete multiple Note (with related clause, clausePoints Data)
-    @unittest.skip("skipping")
+    # @unittest.skip("skipping")
     def test_delete_multiple_note(self):
         with app.app_context():
             try:
@@ -75,7 +75,7 @@ class TestDeleteDB(unittest.TestCase):
 
 
     # Delete Clause (with related clausePoints)
-    @unittest.skip("skipping")
+    # @unittest.skip("skipping")
     def test_delete_clause(self):
         with app.app_context():
             try:

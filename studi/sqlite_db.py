@@ -1,5 +1,5 @@
 from studi import app
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -148,9 +148,9 @@ def delete_data_from_db(table, *args):
 # delete only one note
 def delete_note_and_related_data_from_db(note_id):
     query = db.session.query(Note)
-    note = query.filter(getattr(Note, 'note_id') == note_id).all()
+    note = query.filter(getattr(Note, 'note_id') == note_id).one()
     # all() return list []
-    db.session.delete(note[0])
+    db.session.delete(note)
     db.session.commit()
 
 
@@ -164,9 +164,7 @@ def update_data_to_db(table, condition, update_data):
     """
     query = db.session.query(table)
     for attr, value in condition.items():
-        query.filter(getattr(table, attr))
-    item = query.first()
-    for attr, value in update_data.items():
-        item[attr] = value
-    db.session.commit()
+        query = query.filter(getattr(table, attr) == value)
 
+    query.update(update_data)
+    db.session.commit()
