@@ -1,7 +1,6 @@
 import logging
 import os
 import unittest
-from flask_sqlalchemy import SQLAlchemy
 
 import studi
 from studi import sqlite_db
