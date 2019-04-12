@@ -58,6 +58,22 @@ class TestSelectDB(unittest.TestCase):
                 self.assertIsNotNone(result)
                 self.assertTrue(result)
 
+
+    def test_select_clauses_by_clause_id(self):
+        with app.app_context():
+            try:
+                result = None
+                result = sqlite_db.get_item_from_db(Clauses, {'clause_id' : 1})
+            except Exception as exc:
+                logger.debug("Cannot select Clauses, clause_id : 1, exc : {0} ".format(exc))
+            else:
+                if result:
+                    clause = result[0]
+                    self.assertEqual(clause.clause_id, 1)
+                else:
+                    logger.debug('Caluses is empty, clause_id : 1, result : {0}'.format(result))
+
+
     def test_select_clauses_by_note_id(self):
         with app.app_context():
             try:
