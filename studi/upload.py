@@ -18,11 +18,11 @@ def save_csv_contents_to_db(file_name, note, Production=False):
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/test_studi.db'
 
     # Data model object
-    Note = sqlite_db.Note
+    Notes = sqlite_db.Notes
     Clauses = sqlite_db.Clauses
     ClausePoints = sqlite_db.ClausePoints
     try:
-        note_id = sqlite_db.insert_data_to_db("Note", Note(file_name))
+        note_id = sqlite_db.insert_data_to_db("Notes", Notes(file_name))
         for clauses_dict in note:
             title = None
             content = None

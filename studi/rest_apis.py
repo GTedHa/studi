@@ -2,20 +2,25 @@
 from flask_restful import Api, Resource
 from studi import sqlite_db
 from studi import app
-from flask import request
+from flask import request, Response
 from studi import upload
 import csv
 
 api = Api(app)
 
 
-class Notes(Resource):
+class Note(Resource):
+
+
     def __init__(self):
         pass
 
-    def get(self):
+    def get(self, note_id=None):
         try:
-            result = sqlite_db.get_all_data_from_db(sqlite_db.Note)
+            if note_id:
+                result = sqlite_db.get_item_from_db(sqlite_db.Notes, {'note_id': note_id})
+            else:
+                result = sqlite_db.get_all_data_from_db(sqlite_db.Notes)
         except Exception as exc:
             app.logger.warn("Exception raised during 'GET date from Notes; {0}".format(str(exc)))
             return {'notes' : None}, 500
@@ -24,7 +29,7 @@ class Notes(Resource):
                 notes = []
                 for item in result:
                     note = dict()
-                    for name in sqlite_db.Note.column:
+                    for name in sqlite_db.Notes.column:
                         note[name] = getattr(item, name)
                     notes.append(note)
                 return {'notes' : notes}, 200
@@ -35,7 +40,7 @@ class Notes(Resource):
     def post(self):
         try:
             file = request.files['studi_material']
-            file_name = file.filename
+            file_name = file.filename.split('/').pop()
 
             # Cross-site scripting (XSS)
             if file_name[-3:] != "csv":
@@ -48,7 +53,7 @@ class Notes(Resource):
             request_file = request.files['studi_material']
             csvfile = request_file.read().decode("utf-8").splitlines()
             note = csv.DictReader(csvfile)
-            if upload.save_csv_contents_to_db(file_name[:-3], note, True):
+            if upload.save_csv_contents_to_db(file_name[:-4], note, True):
                 return {'result': True}, 200
             else:
                 return {'result': False}, 400
@@ -69,8 +74,16 @@ class Notes(Resource):
 
 
     def put(self, note_id):
-        new_note_name = request.form['note_name']
-        pass
+        new_note_name = request.form['new_note_name']
+        try:
+            sqlite_db.update_data_to_db(sqlite_db.Notes, {'note_id' : note_id}, {'note_name' : new_note_name})
+        except Exception as exc:
+            app.logger.warn("Exception raised during Delete note from Notes; {0}".format(str(exc)))
+            return {'result' : False}, 500
+        else:
+            return {'result' : True}, 200
+
+
 
 
 
@@ -78,7 +91,7 @@ class Clause(Resource):
     def __init__(self):
         pass
 
-    def post(self, clause_id):
+    def get(self, clause_id):
         try:
             result = sqlite_db.get_item_from_db(sqlite_db.Clauses, {'clause_id' : clause_id})
         except Exception as exc:
@@ -91,7 +104,9 @@ class Clause(Resource):
                 result = result[0]
                 title = result.title
                 contents = result.contents
-                return { 'clause_id': clause_id, 'title': title, 'contents': contents }, 200
+                dict_result = { 'clause_id': clause_id, 'title': title, 'contents': contents }
+                return dict_result, 200
+                # return Response(dict_result, status=200, mimetype='application/json')
             except Exception as exc:
                 app.logger.warn(
                     "Exception raised during access to query row item {0}: {1}".format(
@@ -108,7 +123,7 @@ class ClausePoint(Resource):
     def __init__(self):
         pass
 
-    def post(self, note_id):
+    def get(self, note_id):
         #todo imp, und 세부 조건 추가로 받아서 처리
         try:
             result = sqlite_db.get_item_from_db(sqlite_db.ClausePoints, {'note_id' : note_id})
@@ -151,6 +166,6 @@ class ClausePoint(Resource):
         """
 
 
-api.add_resource(Notes, '/notes', '/', '/note/<note_id>')
-api.add_resource(Clause, '/clause', '/clause/<clause_id>')
-api.add_resource(ClausePoint, '/clausePoint', '/clausePoint/<note_id>', '/clausePoint/<clause_id>')
+api.add_resource(Note, '/', '/notes','/note/<note_id>', '/note')
+api.add_resource(Clause, '/clause/<clause_id>')
+api.add_resource(ClausePoint, '/note/<note_id>/clausePoint', '/clausePoint/<clause_id>')

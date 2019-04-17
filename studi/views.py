@@ -8,6 +8,7 @@ from studi import intf_db
 def index():
     return render_template('index.html')
 
+"""
 @app.route('/note/<int:note_id>')
 def show_note_page(note_id):
     try:
@@ -31,8 +32,9 @@ def show_note_page(note_id):
             )
             note_name = 'Wrong note'
     else:
-        note_name = 'Note not found'            
+        note_name = 'Note not found'
     return render_template('note.html', note_name=note_name, note_id=note_id)
+"""
 
 @app.route('/upload_test')
 def upload_test():
