@@ -40,12 +40,11 @@ class TestInsertDB(unittest.TestCase):
     def test_insert_note_db(self):
         with studi.app.app_context():
             try:
-                Note = sqlite_db.Note
-                note_id  = sqlite_db.insert_data_to_db('Note', Note('test_title_1'))
-                logger.info("Insert data table(Note) success! id : {0}".format(note_id))
-            except:
-                logger.debug('Cannot insert data to db(Note)..')
-            else:
+                Notes = sqlite_db.Notes
+                note_id  = sqlite_db.insert_data_to_db('Notes', Notes('test_title_1'))
+            except Exception as exc:
+                logger.debug('Cannot insert data to db(Notes), Error : {0}'.format(exc))
+            finally:
                 self.assertIsNotNone(note_id)
 
 
@@ -54,10 +53,9 @@ class TestInsertDB(unittest.TestCase):
             try:
                 Clauses = sqlite_db.Clauses
                 clauses_id = sqlite_db.insert_data_to_db('Clauses', Clauses(1, "test_clause_1", "test_content_1"))
-                logger.info("Insert data to table(Clauses) success! cluases_id : {0}".format(clauses_id))
-            except:
-                logger.debug("Cannot insert to db(Clauses)")
-            else:
+            except Exception as exc:
+                logger.debug("Cannot insert to db(Clauses), Error : {0}".format(exc))
+            finally:
                 self.assertIsNotNone(clauses_id)
 
 
@@ -67,10 +65,9 @@ class TestInsertDB(unittest.TestCase):
                 clausePoints = sqlite_db.ClausePoints
                 # column = ['clause_id', 'note_id', 'imp', 'und']
                 clausepoints_id = sqlite_db.insert_data_to_db("ClausePoints", clausePoints(1, 1))
-                logger.info("Insert data to table(ClausePoints success! clausepoints_id : {0}".format(clausepoints_id))
-            except:
-                logger.debug("Cannot insert to db(CluasePoints)")
-            else:
+            except Exception as exc:
+                logger.debug("Cannot insert to db(CluasePoints), Error: {0}".format(exc))
+            finally:
                 self.assertIsNotNone(clausepoints_id)
 
 
@@ -79,9 +76,9 @@ class TestInsertDB(unittest.TestCase):
             if os.path.exists('../studi/uploads/studi_test_file.csv'):
                 try:
                     note_id = upload.insert_csv_to_db()
-                except:
-                    logger.debug("Cannot read csv file Even though csv file exists")
-                else:
+                except Exception as exc:
+                    logger.debug("Cannot read csv file Even though csv file exists, Error : {0}".format(exc))
+                finally:
                     self.assertIsNotNone(note_id)
             else:
                 logger.debug("There is not csv file")

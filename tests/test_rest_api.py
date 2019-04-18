@@ -46,10 +46,11 @@ class TestRestAPI(unittest.TestCase):
         with studi.app.app_context():
             try:
                 resp = self.app.get('/notes')
-            except Exception as exc:
-                print('GET Notes, Error : {0}'.format(exc))
-            else:
                 data = json.loads(resp.data)
+            except Exception as exc:
+                logger.debug("Cannot GET notes from db(Notes), Error : {0}".format(exc))
+                print('GET Notes, Error : {0}'.format(exc))
+            finally:
                 self.assertIsInstance(data['notes'], list)
                 self.assertNotEqual(len(data['notes']), 0)
                 self.assertEqual(resp.status_code, 200)
@@ -59,10 +60,11 @@ class TestRestAPI(unittest.TestCase):
         with studi.app.app_context():
             try:
                 resp = self.app.get('/note/2')
-            except Exception as exc:
-                print('GET note, Error : {0}'.format(exc))
-            else:
                 data = json.loads(resp.data)
+            except Exception as exc:
+                logger.debug("Cannot GET note from db(Notes), Error : {0}".format(exc))
+                print('GET note, Error : {0}'.format(exc))
+            finally:
                 self.assertIsInstance(data['notes'], list)
                 self.assertEqual(resp.status_code, 200)
 
@@ -74,10 +76,11 @@ class TestRestAPI(unittest.TestCase):
                     'studi_material': open('../studi/uploads/studi_test_file.csv', 'rb')
                 }
                 resp = self.app.post('/note', data=data, content_type='multipart/form-data')
-            except Exception as exc:
-                print('POST Note, Error : {0}'.format(exc))
-            else:
                 data = json.loads(resp.data)
+            except Exception as exc:
+                logger.debug("Cannot POST note to db(Notes), Error : {0}".format(exc))
+                print('POST Note, Error : {0}'.format(exc))
+            finally:
                 self.assertEqual(data['result'], True)
                 self.assertEqual(resp.status_code, 200)
 
@@ -86,10 +89,11 @@ class TestRestAPI(unittest.TestCase):
         with studi.app.app_context():
             try:
                 resp = self.app.delete('note/1')
-            except Exception as exc:
-                print('DELETE Note, Error : {0}'.format(exc))
-            else:
                 data = json.loads(resp.data)
+            except Exception as exc:
+                logger.debug("Cannot DELETE note in db(Notes), Error : {0}".format(exc))
+                print('DELETE Note, Error : {0}'.format(exc))
+            finally:
                 self.assertEqual(data['result'], True)
                 self.assertEqual(resp.status_code, 200)
 
@@ -101,10 +105,11 @@ class TestRestAPI(unittest.TestCase):
                     'new_note_name' : 'new_note_name'
                 }
                 resp = self.app.put('/note/1', data=data, content_type='multipart/form-data')
-            except Exception as exc:
-                print('PUT note name, Error : {0}'.format(exc))
-            else:
                 data = json.loads(resp.data)
+            except Exception as exc:
+                logger.debug("Cannot PUT note to db(Notes), Error : {0}".format(exc))
+                print('PUT note name, Error : {0}'.format(exc))
+            finally:
                 self.assertEqual(data['result'], True)
                 self.assertEqual(resp.status_code, 200)
 
@@ -113,10 +118,12 @@ class TestRestAPI(unittest.TestCase):
         with studi.app.app_context():
             try:
                 resp = self.app.get('/clause/1')
-            except Exception as exc:
-                print('GET clause, Error : {0}'.format(exc))
-            else:
                 data = json.loads(resp.data)
+
+            except Exception as exc:
+                logger.debug("Cannot GET clause to db(Clauses), Error : {0}".format(exc))
+                print('GET clause, Error : {0}'.format(exc))
+            finally:
                 self.assertIsNotNone(data['clause'])
                 self.assertEqual(resp.status_code, 200)
 
@@ -130,9 +137,11 @@ class TestRestAPI(unittest.TestCase):
                     'contents': '특별한 날에 대한 설명'
                 }
                 resp = self.app.post('/clause', data=data, content_type='multipart/form-data')
+                data = json.loads(resp.data)
             except Exception as exc:
+                logger.debug("Cannot POST new clause to db(Clauses), Error : {0}".format(exc))
                 print('POST new clause, Error : {0}'.format(exc))
-            else:
+            finally:
                 data = json.loads(resp.data)
                 self.assertIsNotNone(data['clause_id'])
                 self.assertEqual(resp.status_code, 200)
@@ -142,10 +151,11 @@ class TestRestAPI(unittest.TestCase):
         with studi.app.app_context():
             try:
                 resp = self.app.delete('/clause/2')
-            except Exception as exc:
-                print('DELETE clause, Error : {0}'.format(exc))
-            else:
                 data = json.loads(resp.data)
+            except Exception as exc:
+                logger.debug("Cannot DELETE clause from db(Clauses), Error : {0}".format(exc))
+                print('DELETE clause, Error : {0}'.format(exc))
+            finally:
                 self.assertEqual(resp.status_code, 200)
 
     # @unittest.skip("skipping")
@@ -157,10 +167,11 @@ class TestRestAPI(unittest.TestCase):
                     'contents' : '변경된 내용'
                 }
                 resp = self.app.put('/clause/2', data=data, content_type='multipart/form-data')
-            except Exception as exc:
-                print('PUT cluase title, contents, Error : {0}'.format(exc))
-            else:
                 data = json.loads(resp.data)
+            except Exception as exc:
+                logger.debug("Cannot PUT clause to db(Clauses), Error : {0}".format(exc))
+                print('PUT cluase title, contents, Error : {0}'.format(exc))
+            finally:
                 self.assertIsNotNone(data['clause'])
                 self.assertNotEqual(len(data['clause']), 0)
                 self.assertEqual(resp.status_code, 200)
@@ -180,10 +191,12 @@ class TestRestAPI(unittest.TestCase):
                     'und' : 1
                 }
                 resp = self.app.get('note/2/clausePoint', query_string=params)
-            except Exception as exc:
-                print('GET clausepoint, Error : {0}'.format(exc))
-            else:
                 data = json.loads(resp.data)
+            except Exception as exc:
+                logger.debug("Cannot GET clausepoint to db(ClausePoints), Error : {0}".format(exc))
+                print('GET clausepoint, Error : {0}'.format(exc))
+            finally:
+
                 self.assertEqual(resp.status_code, 200)
                 self.assertIsNotNone(data['clause_points'])
                 self.assertNotEqual(len(data['clause_points']), 0)
@@ -196,11 +209,12 @@ class TestRestAPI(unittest.TestCase):
                     'imp' : 1,
                     'und' : 1
                 }
-                resp = self.app.put('/clausePoint/1', data = data, content_type='multipart/form-data' )
-            except Exception as exc:
-                print('put clausepoint, Error : {0}'.format(exc))
-            else:
+                resp = self.app.put('/clausePoint/1', data = data, content_type='multipart/form-data')
                 data = json.loads(resp.data)
+            except Exception as exc:
+                logger.debug("Cannot PUT clausepoint to db(ClausePoints), Error : {0}".format(exc))
+                print('PUT clausepoint, Error : {0}'.format(exc))
+            finally:
                 self.assertEqual(resp.status_code, 200)
                 self.assertIsNotNone(data['clause_point'])
                 self.assertNotEqual(len(data['clause_point']), 0)

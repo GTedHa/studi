@@ -83,6 +83,7 @@ def insert_data_to_db(table, model):
     db.session.add(model)
     db.session.commit()
     id = getattr(model, id_list[table] + '_id')
+    db.session.close()
     return id
 
 
