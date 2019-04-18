@@ -92,7 +92,16 @@ def get_all_data_from_db(table):
     :param table: data model object
     :return: (dict) result
     """
-    return table.query.all()
+    items = table.query.all()
+    results = []
+    if items:
+        for item in items:
+            result = dict()
+            for key in item.column:
+                result[key] = getattr(item, key)
+            results.append(result)
+    db.session.close()
+    return results
 
 
 # get all data where *args from table
@@ -115,7 +124,16 @@ def get_item_from_db(table, *args):
             or_query.append(getattr(table, attr) == v)
         query = query.filter(or_(*or_query))
     items = query.all()
-    return items
+
+    results = []
+    if items:
+        for item in items:
+            result = dict()
+            for key in item.column:
+                result[key] = getattr(item, key)
+            results.append(result)
+    db.session.close()
+    return results
 
 
 #delete all data where *args
@@ -146,6 +164,7 @@ def delete_data_from_db(table, *args):
     for item in items:
         db.session.delete(item)
         db.session.commit()
+    db.session.close()
     return items
 
 
@@ -156,6 +175,7 @@ def delete_note_and_related_data_from_db(note_id):
     # all() return list []
     db.session.delete(note)
     db.session.commit()
+    db.session.close()
     return note
 
 
@@ -177,4 +197,13 @@ def update_data_to_db(table, condition, update_data):
         for key, value in update_data.items():
             setattr(model, key, value)
     db.session.commit()
-    return models
+
+    results = []
+    if models:
+        for item in models:
+            result = dict()
+            for key in item.column:
+                result[key] = getattr(item, key)
+            results.append(result)
+    db.session.close()
+    return results

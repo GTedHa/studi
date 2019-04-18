@@ -26,15 +26,9 @@ class Note(Resource):
             return {'notes' : None}, 500
         else:
             if result:
-                notes = []
-                for item in result:
-                    note = dict()
-                    for name in sqlite_db.Notes.column:
-                        note[name] = getattr(item, name)
-                    notes.append(note)
-                return {'notes' : notes}, 200
+                return {'notes' : result}, 200
             else:
-                return {'notes' : None}, 201
+                return {'notes' : result}, 201
 
 
     def post(self):
@@ -98,24 +92,11 @@ class Clause(Resource):
             app.logger.warn(
                 "Exception raised during get data from clause ".format( clause_id, str(exc))
             )
-            return { 'clause_id': clause_id, 'title': None, 'contents': None }, 500
+            return { 'clause' }, 500
         if result:
-            try:
-                result = result[0]
-                title = result.title
-                contents = result.contents
-                dict_result = { 'clause_id': clause_id, 'title': title, 'contents': contents }
-                return {'clauses' : dict_result}, 200
-                # return Response(dict_result, status=200, mimetype='application/json')
-            except Exception as exc:
-                app.logger.warn(
-                    "Exception raised during access to query row item {0}: {1}".format(
-                        result, str(exc)
-                    )
-                )
-                return { 'clause_id': clause_id, 'title': None, 'contents': None }, 500
+                return {'clause' : result}, 200
         else:
-            return { 'clause_id': clause_id, 'title': None, 'contents': None }, 201
+            return {'clause' : result}, 201
 
     def post(self):
         try:
@@ -154,17 +135,12 @@ class Clause(Resource):
         try:
             clause = sqlite_db.update_data_to_db(sqlite_db.Clauses, {'clause_id' : clause_id}, update_data)
         except Exception as exc:
-            return {'result': False, 'clause' : None}, 500
+            return {'clause_id':clause_id, 'clause' : None}, 500
         else:
             if clause:
-                clause = clause[0]
-                data = {'clause_id' : getattr(clause, 'clause_id'),
-                 'title': getattr(clause, 'title'),
-                 'contents': getattr(clause, 'contents'),
-                 }
-                return {'result':True, 'clause' : data}, 200
+                return {'clause_id':clause_id, 'clause' : clause}, 200
             else:
-                return {'result':False, 'clause' : None}, 201
+                return {'clause_id':clause_id, 'clause' : clause}, 201
 
 
 
@@ -173,47 +149,46 @@ class ClausePoint(Resource):
     def __init__(self):
         pass
 
-    def get(self, note_id):
-        #todo imp, und 세부 조건 추가로 받아서 처리
+
+    def get(self, **args):
+
+        for key, value in request.args.items():
+            args[key] = value
+
         try:
-            result = sqlite_db.get_item_from_db(sqlite_db.ClausePoints, {'note_id' : note_id})
+            result = sqlite_db.get_item_from_db(sqlite_db.ClausePoints, args)
         except Exception as exc:
             app.logger.warn(
-                "Exception raised during 'SELECT * FROM ClausePoints WHERE note_id={0}' query: {1}".format(
-                    note_id, str(exc)
+                "Exception raised during 'SELECT * FROM ClausePoints WHERE args={0}' query: {1}".format(
+                    args, str(exc)
                 )
             )
-            return { 'note_id': note_id, 'clause_points': None }, 500
-        if result:
-            clause_points = []
-            for item in result:
-                point = dict()
-                for key in item.keys():
-                    if key != 'note_id':
-                        point[key] = item[key]
-                clause_points.append(point)
-            return { 'note_id': note_id, 'clause_points': clause_points }, 200
+            return {'note_id': args['note_id'], 'clause_points' : None}, 500
         else:
-            return { 'note_id': note_id, 'clause_points': None }, 201
+            if result:
+                    return {'note_id': args['note_id'], 'clause_points': result}, 200
+            else:
+                return {'note_id': args['note_id'], 'clause_points' : result}, 201
 
 
     # 포인트 정보 업데이트
     def put(self, clause_id):
-        pass
-        """
-        data = request.form['data']
-        return {'result' : True, 'clause_id': clause_id, 'data' : data}, 200
-
+        update_data = {}
+        for key, value in request.form.items():
+            update_data[key] = value
         try:
-            sqlite_db.update_data_to_db(sqlite_db.ClausePoints, clause_id, {'imp' : imp, 'und' : und})
+            clause_point = sqlite_db.update_data_to_db(sqlite_db.ClausePoints, {'clause_id' : clause_id}, update_data)
         except Exception as exc:
+
             app.logger.warn("Exception raised during 'Update point data to ClausePoints.\
-            clause_id : {0}, imp : {1}, und : {2}".format(clause_id, imp, und, str(exc)))
-            return {'result': False}, 500
+            clause_id : {0}, update_data :{1}, error: {2}".format(clause_id, update_data, str(exc)))
+            return {'clause_id' : clause_id, 'clause_point' : None}, 500
         else:
-            #todo update 결과에 대한 검증 추가
-            return {'result': True}, 200
-        """
+            if clause_point:
+                return {'clause_id': clause_id, 'clause_point' : clause_point}, 200
+            else:
+                return {'clause_id': clause_id, 'clause_point': clause_point}, 201
+
 
 
 api.add_resource(Note, '/', '/notes','/note/<note_id>', '/note')
