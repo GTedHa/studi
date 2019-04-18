@@ -146,6 +146,7 @@ def delete_data_from_db(table, *args):
     for item in items:
         db.session.delete(item)
         db.session.commit()
+    return items
 
 
 # delete only one note
@@ -155,6 +156,7 @@ def delete_note_and_related_data_from_db(note_id):
     # all() return list []
     db.session.delete(note)
     db.session.commit()
+    return note
 
 
 # update data where condition (clause_id, note_id)
@@ -169,5 +171,10 @@ def update_data_to_db(table, condition, update_data):
     for attr, value in condition.items():
         query = query.filter(getattr(table, attr) == value)
 
-    query.update(update_data)
+    models = query.all()
+
+    for model in models:
+        for key, value in update_data.items():
+            setattr(model, key, value)
     db.session.commit()
+    return models

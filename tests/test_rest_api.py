@@ -41,6 +41,7 @@ class TestRestAPI(unittest.TestCase):
         upload.insert_csv_to_db(False) # note_id : 2
         upload.insert_csv_to_db(False) # note_id : 3
 
+    @unittest.skip("skipping")
     def test_get_notes(self):
         with studi.app.app_context():
             try:
@@ -50,6 +51,7 @@ class TestRestAPI(unittest.TestCase):
             else:
                 self.assertEqual(resp.status_code, 200)
 
+    @unittest.skip("skipping")
     def test_get_note(self):
         with studi.app.app_context():
             try:
@@ -61,7 +63,7 @@ class TestRestAPI(unittest.TestCase):
                 self.assertIsInstance(data['notes'], list)
                 self.assertEqual(resp.status_code, 200)
 
-
+    @unittest.skip("skipping")
     def test_post_note(self):
         with studi.app.app_context():
             try:
@@ -76,7 +78,7 @@ class TestRestAPI(unittest.TestCase):
                 self.assertEqual(data['result'], True)
                 self.assertEqual(resp.status_code, 200)
 
-
+    @unittest.skip("skipping")
     def test_delete_note(self):
         with studi.app.app_context():
             try:
@@ -88,9 +90,8 @@ class TestRestAPI(unittest.TestCase):
                 self.assertEqual(data['result'], True)
                 self.assertEqual(resp.status_code, 200)
 
-
+    @unittest.skip("skipping")
     def test_put_note(self):
-        pass
         with studi.app.app_context():
             try:
                 data = {
@@ -103,6 +104,63 @@ class TestRestAPI(unittest.TestCase):
                 data = json.loads(resp.data)
                 self.assertEqual(data['result'], True)
                 self.assertEqual(resp.status_code, 200)
+
+    @unittest.skip("skipping")
+    def test_get_clause(self):
+        with studi.app.app_context():
+            try:
+                resp = self.app.get('/clause/1')
+            except Exception as exc:
+                print('GET clause, Error : {0}'.format(exc))
+            else:
+                data = json.loads(resp.data)
+                self.assertIsNotNone(data['clauses'])
+                self.assertEqual(resp.status_code, 200)
+
+    @unittest.skip("skipping")
+    def test_post_clause(self):
+        with studi.app.app_context():
+            try:
+                data = {
+                    'note_id' : 1,
+                    'title' : '특별한 날',
+                    'contents': '특별한 날에 대한 설명'
+                }
+                resp = self.app.post('/clause', data=data, content_type='multipart/form-data')
+            except Exception as exc:
+                print('POST new clause, Error : {0}'.format(exc))
+            else:
+                data = json.loads(resp.data)
+                self.assertIsNotNone(data['clause_id'])
+                self.assertEqual(resp.status_code, 200)
+
+    @unittest.skip("skipping")
+    def test_delete_clause(self):
+        with studi.app.app_context():
+            try:
+                resp = self.app.delete('/clause/2')
+            except Exception as exc:
+                print('DELETE clause, Error : {0}'.format(exc))
+            else:
+                data = json.loads(resp.data)
+                self.assertEqual(resp.status_code, 200)
+
+    # @unittest.skip("skipping")
+    def test_put_clause(self):
+        with studi.app.app_context():
+            try:
+                data = {
+                    'title' : '변경된 제목',
+                    'contents' : '변경된 내용'
+                }
+                resp = self.app.put('/clause/2', data=data, content_type='multipart/form-data')
+            except Exception as exc:
+                print('PUT cluase title, contents, Error : {0}'.format(exc))
+            else:
+                data = json.loads(resp.data)
+                self.assertEqual(data['result'], True)
+                self.assertEqual(resp.status_code, 200)
+
 
 
 if __name__ == "__main__":
