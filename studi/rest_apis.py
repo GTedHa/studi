@@ -105,7 +105,7 @@ class Clause(Resource):
                 title = result.title
                 contents = result.contents
                 dict_result = { 'clause_id': clause_id, 'title': title, 'contents': contents }
-                return dict_result, 200
+                return {'clauses' : dict_result}, 200
                 # return Response(dict_result, status=200, mimetype='application/json')
             except Exception as exc:
                 app.logger.warn(
@@ -116,6 +116,56 @@ class Clause(Resource):
                 return { 'clause_id': clause_id, 'title': None, 'contents': None }, 500
         else:
             return { 'clause_id': clause_id, 'title': None, 'contents': None }, 201
+
+    def post(self):
+        try:
+            new_clause_id = sqlite_db.insert_data_to_db('Clauses',\
+                                                        sqlite_db.Clauses(request.form['note_id'], \
+                                                                          request.form['title'], \
+                                                                          request.form['contents']))
+        except Exception as exc:
+            return {'clause_id' : None, 'title': None, 'contents' : None}, 500
+        else:
+            if new_clause_id:
+                return {'clause_id' : new_clause_id, 'title' : request.form['title'], 'contents' : request.form['contents']}, 200
+            else:
+                return {'clause_id': None, 'title': None, 'contents': None}, 500
+
+
+    def delete(self, clause_id):
+        try:
+
+            result = sqlite_db.delete_data_from_db(sqlite_db.Clauses, {'clause_id' : clause_id})
+        except Exception as exc:
+            return {'clause_id': None}, 500
+        else:
+            if result:
+                result = result[0]
+                clause_id = getattr(result, 'clause_id')
+                return {'clause_id': clause_id}, 200
+            else:
+                return {'clause_id': None}, 500
+
+    def put(self, clause_id):
+        update_data = {}
+        for key, value in request.form.items():
+            update_data[key] = value
+
+        try:
+            clause = sqlite_db.update_data_to_db(sqlite_db.Clauses, {'clause_id' : clause_id}, update_data)
+        except Exception as exc:
+            return {'result': False, 'clause' : None}, 500
+        else:
+            if clause:
+                clause = clause[0]
+                data = {'clause_id' : getattr(clause, 'clause_id'),
+                 'title': getattr(clause, 'title'),
+                 'contents': getattr(clause, 'contents'),
+                 }
+                return {'result':True, 'clause' : data}, 200
+            else:
+                return {'result':False, 'clause' : None}, 201
+
 
 
 class ClausePoint(Resource):
@@ -167,5 +217,5 @@ class ClausePoint(Resource):
 
 
 api.add_resource(Note, '/', '/notes','/note/<note_id>', '/note')
-api.add_resource(Clause, '/clause/<clause_id>')
+api.add_resource(Clause, '/clause', '/clause/<clause_id>')
 api.add_resource(ClausePoint, '/note/<note_id>/clausePoint', '/clausePoint/<clause_id>')
