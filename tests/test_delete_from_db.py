@@ -5,7 +5,7 @@ import unittest
 from studi import app
 from studi import sqlite_db
 from studi import upload
-from studi.sqlite_db import Note, Clauses, ClausePoints
+from studi.sqlite_db import Notes, Clauses, ClausePoints
 
 def gen_logger(test_name):
     logger = logging.getLogger(test_name)
@@ -25,8 +25,6 @@ class TestDeleteDB(unittest.TestCase):
     if you want to skip some function, use it.
     @unittest.skip("skipping")
     """
-
-
     def setUp(self):
         self.app = app.test_client()
         app.testing = True
@@ -49,14 +47,14 @@ class TestDeleteDB(unittest.TestCase):
                 sqlite_db.delete_note_and_related_data_from_db(3)
             except Exception as exc:
                 logger.debug('Cannot delete note and related data from other tables, because {0}'.format(exc))
-            else:
+            finally:
                 # Check if result is empty
-                note_result = sqlite_db.get_item_from_db(Note, {'note_id' : 3})
+                note_result = sqlite_db.get_item_from_db(Notes, {'note_id' : 3})
                 clauses_result = sqlite_db.get_item_from_db(Clauses, {'note_id' : 3})
                 clausePoints_result = sqlite_db.get_item_from_db(ClausePoints, {'note_id' : 3})
-                self.assertCountEqual(note_result, [])
-                self.assertCountEqual(clauses_result, [])
-                self.assertCountEqual(clausePoints_result, [])
+                self.assertEqual(note_result, [])
+                self.assertEqual(clauses_result, [])
+                self.assertEqual(clausePoints_result, [])
 
 
 
@@ -65,13 +63,13 @@ class TestDeleteDB(unittest.TestCase):
     def test_delete_multiple_note(self):
         with app.app_context():
             try:
-                sqlite_db.delete_data_from_db(Note, {'note_id' : [1,2]})
+                sqlite_db.delete_data_from_db(Notes, {'note_id' : [1,2]})
             except Exception as exc:
                 logger.debug("Cannot delete multiple notes data, because : {0}".format(exc))
-            else:
+            finally:
                 # Check if result is empty
-                result = sqlite_db.get_item_from_db(Note, {'note_id' : [1,2]})
-                self.assertCountEqual(result, [])
+                note_result = sqlite_db.get_item_from_db(Notes, {'note_id' : [1,2]})
+                self.assertEqual(note_result, [])
 
 
     # Delete Clause (with related clausePoints)
@@ -82,15 +80,17 @@ class TestDeleteDB(unittest.TestCase):
                 sqlite_db.delete_data_from_db(Clauses, {'clause_id' : 11})
             except Exception as exc:
                 logger.debug("Cannot delete clause and related points data, baluse : {0}".format(exc))
-            else:
+            finally:
                 clause_result = sqlite_db.get_item_from_db(Clauses, {'clause_id' : 11})
                 clause_point_result = sqlite_db.get_item_from_db(ClausePoints, {'clause_id' : 11})
 
                 # Check if result is empty
-                self.assertCountEqual(clause_result,[])
-                self.assertCountEqual(clause_point_result, [])
+                self.assertEqual(clause_result,[])
+                self.assertEqual(clause_point_result, [])
 
 
+    def tearDown(self):
+        app.testing = False
 
 if __name__ == "__main__":
     unittest.main()
