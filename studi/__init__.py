@@ -28,7 +28,6 @@ else:
    app.logger.addHandler(file_handler)
 
 
-import studi.intf_db
 import studi.rest_apis
 import studi.upload
 import studi.utils
