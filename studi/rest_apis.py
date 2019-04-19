@@ -22,7 +22,7 @@ class Note(Resource):
             else:
                 result = sqlite_db.get_all_data_from_db(sqlite_db.Notes)
         except Exception as exc:
-            app.logger.warn("Exception raised during 'GET date from Notes; {0}".format(str(exc)))
+            app.logger.debug("Exception raised during 'GET date from Notes; {0}".format(str(exc)))
             return {'notes' : None}, 500
         else:
             if result:
@@ -38,7 +38,7 @@ class Note(Resource):
 
             # Cross-site scripting (XSS)
             if file_name[-3:] != "csv":
-                app.logger.warn(
+                app.logger.debug(
                     "Exception raised during upload new file file name is : {0}".format(file_name))
                 return {'result' : False, \
                         'description' : "file's extenstion is not .csv. You should upload csv file. \
@@ -52,7 +52,7 @@ class Note(Resource):
             else:
                 return {'result': False}, 400
         except Exception as exc:
-            app.logger.warn("Exception raised during POST note to Notes; {0}".format(str(exc)))
+            app.logger.debug("Exception raised during POST note to Notes; {0}".format(str(exc)))
             return {'result' : False}, 500
 
 
@@ -60,7 +60,7 @@ class Note(Resource):
         try:
             sqlite_db.delete_note_and_related_data_from_db(int(note_id))
         except Exception as exc:
-            app.logger.warn("Exception raised during Delete note from Notes; {0}".format(str(exc)))
+            app.logger.debug("Exception raised during Delete note from Notes; {0}".format(str(exc)))
             return {'result' : False}, 500
         else:
             # Todo ADD Verification Code
@@ -72,11 +72,10 @@ class Note(Resource):
         try:
             sqlite_db.update_data_to_db(sqlite_db.Notes, {'note_id' : note_id}, {'note_name' : new_note_name})
         except Exception as exc:
-            app.logger.warn("Exception raised during Delete note from Notes; {0}".format(str(exc)))
+            app.logger.debug("Exception raised during Delete note from Notes; {0}".format(str(exc)))
             return {'result' : False}, 500
         else:
             return {'result' : True}, 200
-
 
 
 
@@ -89,7 +88,7 @@ class Clause(Resource):
         try:
             result = sqlite_db.get_item_from_db(sqlite_db.Clauses, {'clause_id' : clause_id})
         except Exception as exc:
-            app.logger.warn(
+            app.logger.debug(
                 "Exception raised during get data from clause ".format( clause_id, str(exc))
             )
             return { 'clause' }, 500
@@ -158,7 +157,7 @@ class ClausePoint(Resource):
         try:
             result = sqlite_db.get_item_from_db(sqlite_db.ClausePoints, args)
         except Exception as exc:
-            app.logger.warn(
+            app.logger.debug(
                 "Exception raised during 'SELECT * FROM ClausePoints WHERE args={0}' query: {1}".format(
                     args, str(exc)
                 )
@@ -180,7 +179,7 @@ class ClausePoint(Resource):
             clause_point = sqlite_db.update_data_to_db(sqlite_db.ClausePoints, {'clause_id' : clause_id}, update_data)
         except Exception as exc:
 
-            app.logger.warn("Exception raised during 'Update point data to ClausePoints.\
+            app.logger.debug("Exception raised during 'Update point data to ClausePoints.\
             clause_id : {0}, update_data :{1}, error: {2}".format(clause_id, update_data, str(exc)))
             return {'clause_id' : clause_id, 'clause_point' : None}, 500
         else:
@@ -191,6 +190,6 @@ class ClausePoint(Resource):
 
 
 
-api.add_resource(Note, '/', '/notes','/note/<note_id>', '/note')
-api.add_resource(Clause, '/clause', '/clause/<clause_id>')
-api.add_resource(ClausePoint, '/note/<note_id>/clausePoint', '/clausePoint/<clause_id>')
+api.add_resource(Note, '/api/notes','/api/notes/<note_id>')
+api.add_resource(Clause, '/api/clauses', '/api/clauses/<clause_id>')
+api.add_resource(ClausePoint, '/api/notes/<note_id>/clausePoints', '/api/clausePoints/<clause_id>')

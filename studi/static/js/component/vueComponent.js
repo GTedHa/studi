@@ -70,11 +70,8 @@ new Vue({
             var noteId = localStorage.getItem('noteId');
 
             $.ajax({
-                url: "/note/delete",
-                type: 'delete', 
-                data: {
-                    'note_id': Number(noteId)
-                },
+                url: "/api/notes/" + noteId,
+                type: 'DELETE',
                 dataType: 'json',
                 success: function (data, textStatus, xhr) {
                     // 성공 시 메인(index.html)로 이동
@@ -97,12 +94,9 @@ new Vue({
 
         // clause에 대한 point 정보 호출
         $.ajax({
-            url: "/points",
-            type: 'POST',
+            url: "/api/notes/"+this.noteId +"/clausePoints" ,
+            type: 'GET',
             async: false,
-            data: {
-                note_id: this.noteId
-            },
             dataType: 'json',
             success: function (data, textStatus, xhr) {
                 self.pointList = data.clause_points;
@@ -192,14 +186,12 @@ new Vue({
                 var self = this;
 
                 $.ajax({
-                    url: "/clause",
-                    type: 'POST',
+                    url: "/api/clauses/" + clauseId,
+                    type: 'GET',
                     async: false,
-                    data: {
-                        clause_id: clauseId
-                    },
                     dataType: 'json',
                     success: function (data, textStatus, xhr) {
+                        data = data.clause[0]
                         self.currentClauseId = data.clause_id;
                         self.currentClauseTitle = data.title;
                         self.currentClauseContent = data.contents;
@@ -225,11 +217,10 @@ new Vue({
             var self = this;
 
             $.ajax({
-                url: "/point/update",
+                url: "/api/clausePoints/" + this.currentClauseId,
                 type: 'PUT',
                 async: false,
                 data: {
-                    clause_id: this.currentClauseId,
                     imp: this.currentOptions.imp,
                     und: this.currentOptions.und
                 },
