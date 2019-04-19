@@ -33,3 +33,6 @@ import studi.upload
 import studi.utils
 import studi.views
 import studi.sqlite_db
+
+if not os.path.exists('studi/db/studi.db'):
+    studi.sqlite_db.create_db(True)
