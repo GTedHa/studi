@@ -11,33 +11,6 @@ DIRPATH = module_path + '/uploads/'
 
 api = Api(app)
 
-class UploadCSVMaterial(Resource):
-
-    def post(self):
-        try:
-            file_name = request.files['studi_material'].filename
-
-            # Cross-site scripting (XSS)
-            if file_name[-3:] != "csv":
-                app.logger.warn(
-                    "Exception raised during upload new file file name is : {0}".format(file_name))
-                return {'result' : False, \
-                        'description' : "file's extenstion is not .csv. You should upload csv file. \
-                        Uploaded file name is : {0}".format(file_name)}, 400
-
-
-            temp = request.files['studi_material']
-            csvfile = temp.read().decode("utf-8").splitlines()
-            note = csv.DictReader(csvfile)
-            if save_csv_contents_to_db(file_name[:-3], note, True):
-                return {'result': True}, 200
-            else:
-                return {'result': False}, 400
-        except Exception as e:
-            print(e)
-
-api.add_resource(UploadCSVMaterial, '/upload')
-
 def save_csv_contents_to_db(file_name, note, Production=False):
     if Production:
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/studi.db'
@@ -45,11 +18,11 @@ def save_csv_contents_to_db(file_name, note, Production=False):
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/test_studi.db'
 
     # Data model object
-    Note = sqlite_db.Note
+    Notes = sqlite_db.Notes
     Clauses = sqlite_db.Clauses
     ClausePoints = sqlite_db.ClausePoints
     try:
-        note_id = sqlite_db.insert_data_to_db("Note", Note(file_name))
+        note_id = sqlite_db.insert_data_to_db("Notes", Notes(file_name))
         for clauses_dict in note:
             title = None
             content = None

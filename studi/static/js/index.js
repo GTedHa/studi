@@ -10,7 +10,7 @@ $(document).ready(function(){
       formData.append("studi_material", selectedfile); 
 
       $.ajax({
-        url : "/upload",
+        url : "/api/notes",
         type : 'POST',
         data : formData,
         contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
@@ -51,8 +51,8 @@ $(document).ready(function(){
 
      function getNoteList(){
       $.ajax({
-        url: "/notes",
-        type: 'POST',
+        url: "/api/notes",
+        type: 'GET',
         async: false,
         dataType: 'json',
         success: function(data, textStatus, xhr) {
@@ -69,28 +69,28 @@ $(document).ready(function(){
             if (notes && notes.length > 0) {
               for(var i = 0; i < notes.length; i++){
                 var atagItem = document.createElement('a');
-                atagItem.href = 'note/' + notes[i].note_id;
-  
+                atagItem.href = 'notes/' + notes[i].note_id;
+
                 var item = document.createElement('li');
                 item.className = "list-group-item";
                 item.dataset.id = notes[i].note_id;
-  
+
                 var noteNameItem = document.createElement('span');
                 noteNameItem.className = "noteName-item";
                 noteNameItem.appendChild(document.createTextNode(notes[i].note_name));
-  
+
                 var nextItem = document.createElement('span');
                 nextItem.className = "next-item";
                 nextItem.appendChild(document.createTextNode('>'));
-  
+
                 item.appendChild(noteNameItem);
                 item.appendChild(nextItem);
-                
+
                 atagItem.appendChild(item);
                 list.appendChild(atagItem);
               }
             }
-          
+
             $('.notes-box').append(list);
 
           } else if (xhr.status === 500) {

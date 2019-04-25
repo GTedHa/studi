@@ -28,9 +28,11 @@ else:
    app.logger.addHandler(file_handler)
 
 
-import studi.intf_db
 import studi.rest_apis
 import studi.upload
 import studi.utils
 import studi.views
 import studi.sqlite_db
+
+if not os.path.exists('studi/db/studi.db'):
+    studi.sqlite_db.create_db(True)

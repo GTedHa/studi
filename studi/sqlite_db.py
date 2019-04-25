@@ -10,7 +10,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/studi.db'
 db = SQLAlchemy(app)
 
 
-class Note(db.Model):
+class Notes(db.Model):
+    __tablename__ = 'notes'
     column = ['note_id', 'note_name']
     note_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     note_name = db.Column(db.Text, nullable=False)
@@ -23,9 +24,10 @@ class Note(db.Model):
 
 
 class Clauses(db.Model):
+    __tablename__ = 'clauses'
     column = ['clause_id', 'note_id', 'title', 'contents']
     clause_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    note_id = db.Column(db.Integer, db.ForeignKey('note.note_id'), nullable=False)
+    note_id = db.Column(db.Integer, db.ForeignKey('notes.note_id'), nullable=False)
     title = db.Column(db.Text, nullable=False)
     contents = db.Column(db.Text, nullable=False)
 
@@ -38,9 +40,10 @@ class Clauses(db.Model):
 
 
 class ClausePoints(db.Model):
+    __tablename__ = 'clause_points'
     column = ['clause_id', 'note_id', 'imp', 'und']
     clause_id = db.Column(db.Integer, db.ForeignKey('clauses.clause_id'), primary_key=True)
-    note_id = db.Column(db.Integer, db.ForeignKey('note.note_id'), nullable=False)
+    note_id = db.Column(db.Integer, db.ForeignKey('notes.note_id'), nullable=False)
     imp = db.Column(db.Integer, nullable=False, default=0)
     und = db.Column(db.Integer, nullable=False, default=0)
 
@@ -76,10 +79,11 @@ def drop_db(Production=False):
 # Insert ata to table you want to
 def insert_data_to_db(table, model):
     # Id list to return by table
-    id_list = {'Clauses': 'clause', 'Note': 'note', 'ClausePoints' : 'clause'}
+    id_list = {'Clauses': 'clause', 'Notes': 'note', 'ClausePoints' : 'clause'}
     db.session.add(model)
     db.session.commit()
     id = getattr(model, id_list[table] + '_id')
+    db.session.close()
     return id
 
 
@@ -89,7 +93,16 @@ def get_all_data_from_db(table):
     :param table: data model object
     :return: (dict) result
     """
-    return table.query.all()
+    items = table.query.all()
+    results = []
+    if items:
+        for item in items:
+            result = dict()
+            for key in item.column:
+                result[key] = getattr(item, key)
+            results.append(result)
+    db.session.close()
+    return results
 
 
 # get all data where *args from table
@@ -112,7 +125,16 @@ def get_item_from_db(table, *args):
             or_query.append(getattr(table, attr) == v)
         query = query.filter(or_(*or_query))
     items = query.all()
-    return items
+
+    results = []
+    if items:
+        for item in items:
+            result = dict()
+            for key in item.column:
+                result[key] = getattr(item, key)
+            results.append(result)
+    db.session.close()
+    return results
 
 
 #delete all data where *args
@@ -143,15 +165,19 @@ def delete_data_from_db(table, *args):
     for item in items:
         db.session.delete(item)
         db.session.commit()
+    db.session.close()
+    return items
 
 
 # delete only one note
 def delete_note_and_related_data_from_db(note_id):
-    query = db.session.query(Note)
-    note = query.filter(getattr(Note, 'note_id') == note_id).one()
+    query = db.session.query(Notes)
+    note = query.filter(getattr(Notes, 'note_id') == note_id).one()
     # all() return list []
     db.session.delete(note)
     db.session.commit()
+    db.session.close()
+    return note
 
 
 # update data where condition (clause_id, note_id)
@@ -166,5 +192,19 @@ def update_data_to_db(table, condition, update_data):
     for attr, value in condition.items():
         query = query.filter(getattr(table, attr) == value)
 
-    query.update(update_data)
+    models = query.all()
+
+    for model in models:
+        for key, value in update_data.items():
+            setattr(model, key, value)
     db.session.commit()
+
+    results = []
+    if models:
+        for item in models:
+            result = dict()
+            for key in item.column:
+                result[key] = getattr(item, key)
+            results.append(result)
+    db.session.close()
+    return results
