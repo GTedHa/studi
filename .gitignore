@@ -4,3 +4,4 @@ venv/
 dist/
 *.log*
 *.db
+.idea/
