@@ -3,10 +3,8 @@ import os
 import unittest
 
 import studi
-from studi import sqlite_db
-from flask_sqlalchemy import SQLAlchemy
+from studi import sqlalchemy
 from studi import upload
-import csv
 
 
 def gen_logger(test_name):
@@ -19,7 +17,7 @@ def gen_logger(test_name):
     logger.addHandler(logger_handler)
     return logger
 
-test_name = "test_insert_db"
+test_name = "test_insert"
 logger = gen_logger(test_name)
 
 class TestInsertDB(unittest.TestCase):
@@ -33,15 +31,15 @@ class TestInsertDB(unittest.TestCase):
         self.app = studi.app.test_client()
         # create new testing db
         if os.path.exists("../studi/db/test_studi.db"):
-            sqlite_db.drop_db(False)
-        self.db = sqlite_db.create_db(False)
+            sqlalchemy.drop_db(False)
+        self.db = sqlalchemy.create_db(False)
 
 
     def test_insert_note_db(self):
         with studi.app.app_context():
             try:
-                Notes = sqlite_db.Notes
-                note_id  = sqlite_db.insert_data_to_db('Notes', Notes('test_title_1'))
+                Notes = sqlalchemy.Notes
+                note_id  = sqlalchemy.insert_data_to_db('Notes', Notes('test_title_1'))
             except Exception as exc:
                 logger.debug('Cannot insert data to db(Notes), Error : {0}'.format(exc))
             finally:
@@ -51,8 +49,8 @@ class TestInsertDB(unittest.TestCase):
     def test_insert_clause_db(self):
         with studi.app.app_context():
             try:
-                Clauses = sqlite_db.Clauses
-                clauses_id = sqlite_db.insert_data_to_db('Clauses', Clauses(1, "test_clause_1", "test_content_1"))
+                Clauses = sqlalchemy.Clauses
+                clauses_id = sqlalchemy.insert_data_to_db('Clauses', Clauses(1, "test_clause_1", "test_content_1"))
             except Exception as exc:
                 logger.debug("Cannot insert to db(Clauses), Error : {0}".format(exc))
             finally:
@@ -62,9 +60,9 @@ class TestInsertDB(unittest.TestCase):
     def test_insert_clausePoints_db(self):
         with studi.app.app_context():
             try:
-                clausePoints = sqlite_db.ClausePoints
+                clausePoints = sqlalchemy.ClausePoints
                 # column = ['clause_id', 'note_id', 'imp', 'und']
-                clausepoints_id = sqlite_db.insert_data_to_db("ClausePoints", clausePoints(1, 1))
+                clausepoints_id = sqlalchemy.insert_data_to_db("ClausePoints", clausePoints(1, 1))
             except Exception as exc:
                 logger.debug("Cannot insert to db(CluasePoints), Error: {0}".format(exc))
             finally:

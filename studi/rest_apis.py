@@ -1,6 +1,6 @@
 
 from flask_restful import Api, Resource
-from studi import sqlite_db
+from studi import sqlalchemy
 from studi import app
 from flask import request, Response
 from studi import upload
@@ -18,9 +18,9 @@ class Note(Resource):
     def get(self, note_id=None):
         try:
             if note_id:
-                result = sqlite_db.get_item_from_db(sqlite_db.Notes, {'note_id': note_id})
+                result = sqlalchemy.get_item_from_db(sqlalchemy.Notes, {'note_id': note_id})
             else:
-                result = sqlite_db.get_all_data_from_db(sqlite_db.Notes)
+                result = sqlalchemy.get_all_data_from_db(sqlalchemy.Notes)
         except Exception as exc:
             app.logger.debug("Exception raised during 'GET date from Notes; {0}".format(str(exc)))
             return {'notes' : None}, 500
@@ -58,7 +58,7 @@ class Note(Resource):
 
     def delete(self, note_id):
         try:
-            sqlite_db.delete_note_and_related_data_from_db(int(note_id))
+            sqlalchemy.delete_note_and_related_data_from_db(int(note_id))
         except Exception as exc:
             app.logger.debug("Exception raised during Delete note from Notes; {0}".format(str(exc)))
             return {'result' : False}, 500
@@ -70,7 +70,7 @@ class Note(Resource):
     def put(self, note_id):
         new_note_name = request.form['new_note_name']
         try:
-            sqlite_db.update_data_to_db(sqlite_db.Notes, {'note_id' : note_id}, {'note_name' : new_note_name})
+            sqlalchemy.update_data_to_db(sqlalchemy.Notes, {'note_id' : note_id}, {'note_name' : new_note_name})
         except Exception as exc:
             app.logger.debug("Exception raised during Delete note from Notes; {0}".format(str(exc)))
             return {'result' : False}, 500
@@ -86,7 +86,7 @@ class Clause(Resource):
 
     def get(self, clause_id):
         try:
-            result = sqlite_db.get_item_from_db(sqlite_db.Clauses, {'clause_id' : clause_id})
+            result = sqlalchemy.get_item_from_db(sqlalchemy.Clauses, {'clause_id' : clause_id})
         except Exception as exc:
             app.logger.debug(
                 "Exception raised during get data from clause ".format( clause_id, str(exc))
@@ -99,10 +99,10 @@ class Clause(Resource):
 
     def post(self):
         try:
-            new_clause_id = sqlite_db.insert_data_to_db('Clauses',\
-                                                        sqlite_db.Clauses(request.form['note_id'], \
-                                                                          request.form['title'], \
-                                                                          request.form['contents']))
+            new_clause_id = sqlalchemy.insert_data_to_db('Clauses', \
+                                                         sqlalchemy.Clauses(request.form['note_id'], \
+                                                                            request.form['title'], \
+                                                                            request.form['contents']))
         except Exception as exc:
             return {'clause_id' : None, 'title': None, 'contents' : None}, 500
         else:
@@ -115,7 +115,7 @@ class Clause(Resource):
     def delete(self, clause_id):
         try:
 
-            result = sqlite_db.delete_data_from_db(sqlite_db.Clauses, {'clause_id' : clause_id})
+            result = sqlalchemy.delete_data_from_db(sqlalchemy.Clauses, {'clause_id' : clause_id})
         except Exception as exc:
             return {'clause_id': None}, 500
         else:
@@ -132,7 +132,7 @@ class Clause(Resource):
             update_data[key] = value
 
         try:
-            clause = sqlite_db.update_data_to_db(sqlite_db.Clauses, {'clause_id' : clause_id}, update_data)
+            clause = sqlalchemy.update_data_to_db(sqlalchemy.Clauses, {'clause_id' : clause_id}, update_data)
         except Exception as exc:
             return {'clause_id':clause_id, 'clause' : None}, 500
         else:
@@ -155,7 +155,7 @@ class ClausePoint(Resource):
             args[key] = value
 
         try:
-            result = sqlite_db.get_item_from_db(sqlite_db.ClausePoints, args)
+            result = sqlalchemy.get_item_from_db(sqlalchemy.ClausePoints, args)
         except Exception as exc:
             app.logger.debug(
                 "Exception raised during 'SELECT * FROM ClausePoints WHERE args={0}' query: {1}".format(
@@ -176,7 +176,7 @@ class ClausePoint(Resource):
         for key, value in request.form.items():
             update_data[key] = value
         try:
-            clause_point = sqlite_db.update_data_to_db(sqlite_db.ClausePoints, {'clause_id' : clause_id}, update_data)
+            clause_point = sqlalchemy.update_data_to_db(sqlalchemy.ClausePoints, {'clause_id' : clause_id}, update_data)
         except Exception as exc:
 
             app.logger.debug("Exception raised during 'Update point data to ClausePoints.\

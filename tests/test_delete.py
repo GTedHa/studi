@@ -3,9 +3,9 @@ import os
 import unittest
 
 from studi import app
-from studi import sqlite_db
+from studi import sqlalchemy
 from studi import upload
-from studi.sqlite_db import Notes, Clauses, ClausePoints
+from studi.sqlalchemy import Notes, Clauses, ClausePoints
 
 def gen_logger(test_name):
     logger = logging.getLogger(test_name)
@@ -17,7 +17,7 @@ def gen_logger(test_name):
     logger.addHandler(logger_handler)
     return logger
 
-test_name = "test_delete_from_db"
+test_name = "test_delete"
 logger = gen_logger(test_name)
 
 class TestDeleteDB(unittest.TestCase):
@@ -32,8 +32,8 @@ class TestDeleteDB(unittest.TestCase):
 
         #create new tesint DB & insert dummy data
         if os.path.exists("../studi/db/test_studi.db"):
-            sqlite_db.drop_db(False)
-        sqlite_db.create_db(False)
+            sqlalchemy.drop_db(False)
+        sqlalchemy.create_db(False)
         upload.insert_csv_to_db(False)  # note_id : 1
         upload.insert_csv_to_db(False)  # note_id : 2
         upload.insert_csv_to_db(False)  # note_id : 3
@@ -44,14 +44,14 @@ class TestDeleteDB(unittest.TestCase):
     def test_delete_one_note(self):
         with app.app_context():
             try:
-                sqlite_db.delete_note_and_related_data_from_db(3)
+                sqlalchemy.delete_note_and_related_data_from_db(3)
             except Exception as exc:
                 logger.debug('Cannot delete note and related data from other tables, because {0}'.format(exc))
             finally:
                 # Check if result is empty
-                note_result = sqlite_db.get_item_from_db(Notes, {'note_id' : 3})
-                clauses_result = sqlite_db.get_item_from_db(Clauses, {'note_id' : 3})
-                clausePoints_result = sqlite_db.get_item_from_db(ClausePoints, {'note_id' : 3})
+                note_result = sqlalchemy.get_item_from_db(Notes, {'note_id' : 3})
+                clauses_result = sqlalchemy.get_item_from_db(Clauses, {'note_id' : 3})
+                clausePoints_result = sqlalchemy.get_item_from_db(ClausePoints, {'note_id' : 3})
                 self.assertEqual(note_result, [])
                 self.assertEqual(clauses_result, [])
                 self.assertEqual(clausePoints_result, [])
@@ -63,12 +63,12 @@ class TestDeleteDB(unittest.TestCase):
     def test_delete_multiple_note(self):
         with app.app_context():
             try:
-                sqlite_db.delete_data_from_db(Notes, {'note_id' : [1,2]})
+                sqlalchemy.delete_data_from_db(Notes, {'note_id' : [1, 2]})
             except Exception as exc:
                 logger.debug("Cannot delete multiple notes data, because : {0}".format(exc))
             finally:
                 # Check if result is empty
-                note_result = sqlite_db.get_item_from_db(Notes, {'note_id' : [1,2]})
+                note_result = sqlalchemy.get_item_from_db(Notes, {'note_id' : [1, 2]})
                 self.assertEqual(note_result, [])
 
 
@@ -77,12 +77,12 @@ class TestDeleteDB(unittest.TestCase):
     def test_delete_clause(self):
         with app.app_context():
             try:
-                sqlite_db.delete_data_from_db(Clauses, {'clause_id' : 11})
+                sqlalchemy.delete_data_from_db(Clauses, {'clause_id' : 11})
             except Exception as exc:
                 logger.debug("Cannot delete clause and related points data, baluse : {0}".format(exc))
             finally:
-                clause_result = sqlite_db.get_item_from_db(Clauses, {'clause_id' : 11})
-                clause_point_result = sqlite_db.get_item_from_db(ClausePoints, {'clause_id' : 11})
+                clause_result = sqlalchemy.get_item_from_db(Clauses, {'clause_id' : 11})
+                clause_point_result = sqlalchemy.get_item_from_db(ClausePoints, {'clause_id' : 11})
 
                 # Check if result is empty
                 self.assertEqual(clause_result,[])

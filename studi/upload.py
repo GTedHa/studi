@@ -1,36 +1,31 @@
-from bs4 import BeautifulSoup
-from flask import request
-from flask_restful import Resource, Api
+
+from flask_restful import Api
 
 from studi import app
-from studi import module_path
-from studi import sqlite_db
+from studi import sqlalchemy
 
 import csv
-DIRPATH = module_path + '/uploads/'
 
 api = Api(app)
 
 def save_csv_contents_to_db(file_name, note, Production=False):
-    if Production:
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/studi.db'
-    else:
+    if not Production:
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/test_studi.db'
 
     # Data model object
-    Notes = sqlite_db.Notes
-    Clauses = sqlite_db.Clauses
-    ClausePoints = sqlite_db.ClausePoints
+    Notes = sqlalchemy.Notes
+    Clauses = sqlalchemy.Clauses
+    ClausePoints = sqlalchemy.ClausePoints
     try:
-        note_id = sqlite_db.insert_data_to_db("Notes", Notes(file_name))
+        note_id = sqlalchemy.insert_data_to_db("Notes", Notes(file_name))
         for clauses_dict in note:
             title = None
             content = None
             for key, value in clauses_dict.items():
                 if key == 'title': title = value
                 if key == 'content': content = value
-            clauses_id = sqlite_db.insert_data_to_db("Clauses", Clauses(note_id, title, content))
-            sqlite_db.insert_data_to_db("ClausePoints", ClausePoints(clauses_id, note_id, 0, 0))
+            clauses_id = sqlalchemy.insert_data_to_db("Clauses", Clauses(note_id, title, content))
+            sqlalchemy.insert_data_to_db("ClausePoints", ClausePoints(clauses_id, note_id, 0, 0))
     except Exception as exc:
         # TODO: more elegant exception handling..
         app.logger.warn(
@@ -40,9 +35,7 @@ def save_csv_contents_to_db(file_name, note, Production=False):
 
 
 def insert_csv_to_db(Production=False):
-    if Production:
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/studi.db'
-    else:
+    if not Production:
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/test_studi.db'
 
     note_id = None

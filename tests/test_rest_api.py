@@ -6,10 +6,9 @@ import unittest
 from studi import app
 from studi import upload
 import json
-from flask import jsonify
 
 import studi
-from studi import sqlite_db
+from studi import sqlalchemy
 
 
 def gen_logger(test_name):
@@ -35,8 +34,8 @@ class TestRestAPI(unittest.TestCase):
 
         # create new testing db & insert dummy data
         if os.path.exists("../studi/db/test_studi.db"):
-            sqlite_db.drop_db(False)
-        self.db = sqlite_db.create_db(False)
+            sqlalchemy.drop_db(False)
+        self.db = sqlalchemy.create_db(False)
         upload.insert_csv_to_db(False) # note_id : 1
         upload.insert_csv_to_db(False) # note_id : 2
         upload.insert_csv_to_db(False) # note_id : 3
@@ -45,7 +44,7 @@ class TestRestAPI(unittest.TestCase):
     def test_get_notes(self):
         with studi.app.app_context():
             try:
-                resp = self.app.get('/notes')
+                resp = self.app.get('/api/notes')
                 data = json.loads(resp.data)
             except Exception as exc:
                 logger.debug("Cannot GET notes from db(Notes), Error : {0}".format(exc))
@@ -59,7 +58,7 @@ class TestRestAPI(unittest.TestCase):
     def test_get_note(self):
         with studi.app.app_context():
             try:
-                resp = self.app.get('/note/2')
+                resp = self.app.get('/api/notes/2')
                 data = json.loads(resp.data)
             except Exception as exc:
                 logger.debug("Cannot GET note from db(Notes), Error : {0}".format(exc))
@@ -75,7 +74,7 @@ class TestRestAPI(unittest.TestCase):
                 data = {
                     'studi_material': open('../studi/uploads/studi_test_file.csv', 'rb')
                 }
-                resp = self.app.post('/note', data=data, content_type='multipart/form-data')
+                resp = self.app.post('/api/notes', data=data, content_type='multipart/form-data')
                 data = json.loads(resp.data)
             except Exception as exc:
                 logger.debug("Cannot POST note to db(Notes), Error : {0}".format(exc))
@@ -88,7 +87,7 @@ class TestRestAPI(unittest.TestCase):
     def test_delete_note(self):
         with studi.app.app_context():
             try:
-                resp = self.app.delete('note/1')
+                resp = self.app.delete('/api/notes/1')
                 data = json.loads(resp.data)
             except Exception as exc:
                 logger.debug("Cannot DELETE note in db(Notes), Error : {0}".format(exc))
@@ -104,7 +103,7 @@ class TestRestAPI(unittest.TestCase):
                 data = {
                     'new_note_name' : 'new_note_name'
                 }
-                resp = self.app.put('/note/1', data=data, content_type='multipart/form-data')
+                resp = self.app.put('/api/notes/1', data=data, content_type='multipart/form-data')
                 data = json.loads(resp.data)
             except Exception as exc:
                 logger.debug("Cannot PUT note to db(Notes), Error : {0}".format(exc))
@@ -117,7 +116,7 @@ class TestRestAPI(unittest.TestCase):
     def test_get_clause(self):
         with studi.app.app_context():
             try:
-                resp = self.app.get('/clause/1')
+                resp = self.app.get('/api/clauses/1')
                 data = json.loads(resp.data)
 
             except Exception as exc:
@@ -136,7 +135,7 @@ class TestRestAPI(unittest.TestCase):
                     'title' : '특별한 날',
                     'contents': '특별한 날에 대한 설명'
                 }
-                resp = self.app.post('/clause', data=data, content_type='multipart/form-data')
+                resp = self.app.post('/api/clauses', data=data, content_type='multipart/form-data')
                 data = json.loads(resp.data)
             except Exception as exc:
                 logger.debug("Cannot POST new clause to db(Clauses), Error : {0}".format(exc))
@@ -150,7 +149,7 @@ class TestRestAPI(unittest.TestCase):
     def test_delete_clause(self):
         with studi.app.app_context():
             try:
-                resp = self.app.delete('/clause/2')
+                resp = self.app.delete('/api/clauses/2')
                 data = json.loads(resp.data)
             except Exception as exc:
                 logger.debug("Cannot DELETE clause from db(Clauses), Error : {0}".format(exc))
@@ -166,7 +165,7 @@ class TestRestAPI(unittest.TestCase):
                     'title' : '변경된 제목',
                     'contents' : '변경된 내용'
                 }
-                resp = self.app.put('/clause/2', data=data, content_type='multipart/form-data')
+                resp = self.app.put('/api/clauses/2', data=data, content_type='multipart/form-data')
                 data = json.loads(resp.data)
             except Exception as exc:
                 logger.debug("Cannot PUT clause to db(Clauses), Error : {0}".format(exc))
@@ -182,15 +181,15 @@ class TestRestAPI(unittest.TestCase):
         with studi.app.app_context():
             try:
                 # update for testing
-                sqlite_db.update_data_to_db(sqlite_db.ClausePoints, {'clause_id': 7}, {'imp': 0, 'und': 1})
-                sqlite_db.update_data_to_db(sqlite_db.ClausePoints, {'clause_id': 6}, {'imp': 1, 'und': 1})
-                sqlite_db.update_data_to_db(sqlite_db.ClausePoints, {'clause_id': 5}, {'imp': 1, 'und': 1})
+                sqlalchemy.update_data_to_db(sqlalchemy.ClausePoints, {'clause_id': 7}, {'imp': 0, 'und': 1})
+                sqlalchemy.update_data_to_db(sqlalchemy.ClausePoints, {'clause_id': 6}, {'imp': 1, 'und': 1})
+                sqlalchemy.update_data_to_db(sqlalchemy.ClausePoints, {'clause_id': 5}, {'imp': 1, 'und': 1})
 
                 params = {
                     'imp' : 1,
                     'und' : 1
                 }
-                resp = self.app.get('note/2/clausePoint', query_string=params)
+                resp = self.app.get('/api/notes/2/clausePoints', query_string=params)
                 data = json.loads(resp.data)
             except Exception as exc:
                 logger.debug("Cannot GET clausepoint to db(ClausePoints), Error : {0}".format(exc))
@@ -209,7 +208,7 @@ class TestRestAPI(unittest.TestCase):
                     'imp' : 1,
                     'und' : 1
                 }
-                resp = self.app.put('/clausePoint/1', data = data, content_type='multipart/form-data')
+                resp = self.app.put('/api/clausePoints/1', data = data, content_type='multipart/form-data')
                 data = json.loads(resp.data)
             except Exception as exc:
                 logger.debug("Cannot PUT clausepoint to db(ClausePoints), Error : {0}".format(exc))
