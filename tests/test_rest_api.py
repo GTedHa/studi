@@ -9,7 +9,7 @@ import json
 from flask import jsonify
 
 import studi
-from studi import sqlite_db
+from studi import sqlalchemy
 
 
 def gen_logger(test_name):
@@ -35,8 +35,8 @@ class TestRestAPI(unittest.TestCase):
 
         # create new testing db & insert dummy data
         if os.path.exists("../studi/db/test_studi.db"):
-            sqlite_db.drop_db(False)
-        self.db = sqlite_db.create_db(False)
+            sqlalchemy.drop_db(False)
+        self.db = sqlalchemy.create_db(False)
         upload.insert_csv_to_db(False) # note_id : 1
         upload.insert_csv_to_db(False) # note_id : 2
         upload.insert_csv_to_db(False) # note_id : 3
@@ -182,9 +182,9 @@ class TestRestAPI(unittest.TestCase):
         with studi.app.app_context():
             try:
                 # update for testing
-                sqlite_db.update_data_to_db(sqlite_db.ClausePoints, {'clause_id': 7}, {'imp': 0, 'und': 1})
-                sqlite_db.update_data_to_db(sqlite_db.ClausePoints, {'clause_id': 6}, {'imp': 1, 'und': 1})
-                sqlite_db.update_data_to_db(sqlite_db.ClausePoints, {'clause_id': 5}, {'imp': 1, 'und': 1})
+                sqlalchemy.update_data_to_db(sqlalchemy.ClausePoints, {'clause_id': 7}, {'imp': 0, 'und': 1})
+                sqlalchemy.update_data_to_db(sqlalchemy.ClausePoints, {'clause_id': 6}, {'imp': 1, 'und': 1})
+                sqlalchemy.update_data_to_db(sqlalchemy.ClausePoints, {'clause_id': 5}, {'imp': 1, 'und': 1})
 
                 params = {
                     'imp' : 1,

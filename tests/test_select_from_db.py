@@ -3,9 +3,9 @@ import os
 import unittest
 
 from studi import app
-from studi import sqlite_db
+from studi import sqlalchemy
 from studi import upload
-from studi.sqlite_db import Notes, ClausePoints, Clauses
+from studi.sqlalchemy import Notes, ClausePoints, Clauses
 
 
 def gen_logger(test_name):
@@ -34,8 +34,8 @@ class TestSelectDB(unittest.TestCase):
 
         # create new testing db & insert dummy data
         if os.path.exists("../studi/db/test_studi.db"):
-            sqlite_db.drop_db(False)
-        self.db = sqlite_db.create_db(False)
+            sqlalchemy.drop_db(False)
+        self.db = sqlalchemy.create_db(False)
         upload.insert_csv_to_db(False)
 
 
@@ -43,7 +43,7 @@ class TestSelectDB(unittest.TestCase):
         with app.app_context():
             try:
                 result = None
-                result = sqlite_db.get_all_data_from_db(Notes)
+                result = sqlalchemy.get_all_data_from_db(Notes)
             except:
                 logger.debug('Cannot select Notes')
             finally:
@@ -54,7 +54,7 @@ class TestSelectDB(unittest.TestCase):
     def test_select_clauses_by_clause_id(self):
         with app.app_context():
             try:
-                result = sqlite_db.get_item_from_db(Clauses, {'clause_id' : 1})
+                result = sqlalchemy.get_item_from_db(Clauses, {'clause_id' : 1})
             except Exception as exc:
                 logger.debug("Cannot select Clauses, clause_id : 1, exc : {0} ".format(exc))
             finally:
@@ -66,7 +66,7 @@ class TestSelectDB(unittest.TestCase):
     def test_select_clauses_by_note_id(self):
         with app.app_context():
             try:
-                result = sqlite_db.get_item_from_db(Clauses, {'note_id':1})
+                result = sqlalchemy.get_item_from_db(Clauses, {'note_id':1})
             except:
                 logger.debug("Cannot select Clauses, note_id : 1, note_id : 1")
             finally:
@@ -79,7 +79,7 @@ class TestSelectDB(unittest.TestCase):
     def test_select_clausePoints_by_note_id(self):
         with app.app_context():
             try:
-                result = sqlite_db.get_item_from_db(ClausePoints, {'note_id':1, 'clause_id':1})
+                result = sqlalchemy.get_item_from_db(ClausePoints, {'note_id':1, 'clause_id':1})
             except:
                 logger.debug("Cannot select ClausePoints, note_id : 1, caluse_id : 1")
             finally:

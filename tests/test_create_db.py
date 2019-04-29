@@ -3,7 +3,7 @@ import os
 import unittest
 
 import studi
-from studi import sqlite_db
+from studi import sqlalchemy
 
 def gen_logger(test_name):
     logger = logging.getLogger(test_name)
@@ -28,14 +28,14 @@ class TestCreateDB(unittest.TestCase):
 
         # delete db
         if os.path.exists("../studi/db/test_studi.db"):
-            sqlite_db.drop_db(False)
+            sqlalchemy.drop_db(False)
             self.app = studi.app.test_client()
 
 
     def test_create_db(self):
         with studi.app.app_context():
             try:
-                db = sqlite_db.create_db(False)
+                db = sqlalchemy.create_db(False)
             except Exception as exc:
                 logger.debug("Cannot create db, Error : {0}".format(exc))
             finally:
@@ -47,7 +47,7 @@ class TestCreateDB(unittest.TestCase):
     def test_delete_db(self):
         with studi.app.app_context():
             try:
-                db = sqlite_db.drop_db(False)
+                db = sqlalchemy.drop_db(False)
             except Exception as exc:
                 logger.debug('Cannot delete db, Error : {1}'.format(exc))
             finally:

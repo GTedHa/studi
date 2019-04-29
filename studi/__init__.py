@@ -32,7 +32,7 @@ import studi.rest_apis
 import studi.upload
 import studi.utils
 import studi.views
-import studi.sqlite_db
+import studi.sqlalchemy
 
 if not os.path.exists('studi/db/studi.db'):
-    studi.sqlite_db.create_db(True)
+    studi.sqlalchemy.create_db(True)

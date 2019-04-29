@@ -1,78 +1,20 @@
+from .models.extentions import db
+from .models import Notes
+from sqlalchemy import or_
 from studi import app
-from sqlalchemy import or_, and_
-from flask_sqlalchemy import SQLAlchemy
-
-
-# if set to True(default) Falst-SQLAlchemy will track modifications of object and emit signals.
-# This requires extra memory and can be disabled if not needed.
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/studi.db'
-db = SQLAlchemy(app)
-
-
-class Notes(db.Model):
-    __tablename__ = 'notes'
-    column = ['note_id', 'note_name']
-    note_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    note_name = db.Column(db.Text, nullable=False)
-
-    def __init__(self, notename):
-        self.note_name = notename
-
-    clauses = db.relationship("Clauses", cascade="all, delete")
-    clausePoints = db.relationship('ClausePoints', cascade="all, delete")
-
-
-class Clauses(db.Model):
-    __tablename__ = 'clauses'
-    column = ['clause_id', 'note_id', 'title', 'contents']
-    clause_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    note_id = db.Column(db.Integer, db.ForeignKey('notes.note_id'), nullable=False)
-    title = db.Column(db.Text, nullable=False)
-    contents = db.Column(db.Text, nullable=False)
-
-    clausePoints = db.relationship('ClausePoints', cascade="all, delete")
-
-    def __init__(self, noteid=None, title=None, contents=None):
-        self.note_id = noteid
-        self.title = title
-        self.contents = contents
-
-
-class ClausePoints(db.Model):
-    __tablename__ = 'clause_points'
-    column = ['clause_id', 'note_id', 'imp', 'und']
-    clause_id = db.Column(db.Integer, db.ForeignKey('clauses.clause_id'), primary_key=True)
-    note_id = db.Column(db.Integer, db.ForeignKey('notes.note_id'), nullable=False)
-    imp = db.Column(db.Integer, nullable=False, default=0)
-    und = db.Column(db.Integer, nullable=False, default=0)
-
-    def __init__(self, clauseid=None, noteid=None, imp=0, und=0):
-        self.clause_id = clauseid
-        self.note_id = noteid
-        self.imp = imp
-        self.und = und
-
 
 # Create table (defalut, production = False)
 def create_db(Production=False):
-    if Production:
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/studi.db'
-        db.create_all()
-        return
-
     # Create testing DB (test_studi.db)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/test_studi.db'
+    if not Production:
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/test_studi.db'
     db.create_all()
     return db
 
 def drop_db(Production=False):
-    if Production:
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/studi.db'
-        db.drop_all()
-        return
-
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/test_studi.db'
+    # Drop testing DB (test_studi.db)
+    if not Production:
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/test_studi.db'
     db.drop_all()
     return db
 
