@@ -1,13 +1,10 @@
-from bs4 import BeautifulSoup
-from flask import request
-from flask_restful import Resource, Api
+
+from flask_restful import Api
 
 from studi import app
-from studi import module_path
 from studi import sqlalchemy
 
 import csv
-DIRPATH = module_path + '/uploads/'
 
 api = Api(app)
 

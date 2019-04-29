@@ -30,7 +30,6 @@ else:
 
 import studi.rest_apis
 import studi.upload
-import studi.utils
 import studi.views
 import studi.sqlalchemy
 
