@@ -18,7 +18,7 @@ def gen_logger(test_name):
     logger.addHandler(logger_handler)
     return logger
 
-test_name = "test_select_from_db"
+test_name = "test_select"
 logger = gen_logger(test_name)
 
 class TestSelectDB(unittest.TestCase):

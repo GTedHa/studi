@@ -6,7 +6,6 @@ import unittest
 from studi import app
 from studi import upload
 import json
-from flask import jsonify
 
 import studi
 from studi import sqlalchemy

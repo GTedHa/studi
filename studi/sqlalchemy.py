@@ -1,5 +1,5 @@
 from .models.extentions import db
-from .models import Notes
+from .models import Notes, Clauses, ClausePoints
 from sqlalchemy import or_
 from studi import app
 

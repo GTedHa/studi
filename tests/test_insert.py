@@ -4,9 +4,7 @@ import unittest
 
 import studi
 from studi import sqlalchemy
-from flask_sqlalchemy import SQLAlchemy
 from studi import upload
-import csv
 
 
 def gen_logger(test_name):
@@ -19,7 +17,7 @@ def gen_logger(test_name):
     logger.addHandler(logger_handler)
     return logger
 
-test_name = "test_insert_db"
+test_name = "test_insert"
 logger = gen_logger(test_name)
 
 class TestInsertDB(unittest.TestCase):

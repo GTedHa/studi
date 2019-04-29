@@ -17,7 +17,7 @@ def gen_logger(test_name):
     logger.addHandler(logger_handler)
     return logger
 
-test_name = "test_update_to_db"
+test_name = "test_update"
 logger = gen_logger(test_name)
 
 class TestUpdateDB(unittest.TestCase):
