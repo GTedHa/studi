@@ -1,26 +1,28 @@
 
 from flask_restful import Api, Resource
-from studi import sqlalchemy
+from studi import sqlalchemy_orm
 from studi import app
 from flask import request, Response
 from studi import upload
+from studi import log
 import csv
 
 api = Api(app)
 
+logger = log.gen_logger('studi')
 
 class Note(Resource):
-
 
     def __init__(self):
         pass
 
+    @log.logger_decorator_with_params(logger)
     def get(self, note_id=None):
         try:
             if note_id:
-                result = sqlalchemy.get_item_from_db(sqlalchemy.Notes, {'note_id': note_id})
+                result = sqlalchemy_orm.get_item_from_db(sqlalchemy_orm.Notes, {'note_id': note_id})
             else:
-                result = sqlalchemy.get_all_data_from_db(sqlalchemy.Notes)
+                result = sqlalchemy_orm.get_all_data_from_db(sqlalchemy_orm.Notes)
         except Exception as exc:
             app.logger.debug("Exception raised during 'GET date from Notes; {0}".format(str(exc)))
             return {'notes' : None}, 500
@@ -30,7 +32,7 @@ class Note(Resource):
             else:
                 return {'notes' : result}, 201
 
-
+    @log.logger_decorator_with_params(logger)
     def post(self):
         try:
             file = request.files['studi_material']
@@ -55,10 +57,10 @@ class Note(Resource):
             app.logger.debug("Exception raised during POST note to Notes; {0}".format(str(exc)))
             return {'result' : False}, 500
 
-
+    @log.logger_decorator_with_params(logger)
     def delete(self, note_id):
         try:
-            sqlalchemy.delete_note_and_related_data_from_db(int(note_id))
+            sqlalchemy_orm.delete_note_and_related_data_from_db(int(note_id))
         except Exception as exc:
             app.logger.debug("Exception raised during Delete note from Notes; {0}".format(str(exc)))
             return {'result' : False}, 500
@@ -66,11 +68,11 @@ class Note(Resource):
             # Todo ADD Verification Code
             return {'result': True}, 200
 
-
+    @log.logger_decorator_with_params(logger)
     def put(self, note_id):
         new_note_name = request.form['new_note_name']
         try:
-            sqlalchemy.update_data_to_db(sqlalchemy.Notes, {'note_id' : note_id}, {'note_name' : new_note_name})
+            sqlalchemy_orm.update_data_to_db(sqlalchemy_orm.Notes, {'note_id' : note_id}, {'note_name' : new_note_name})
         except Exception as exc:
             app.logger.debug("Exception raised during Delete note from Notes; {0}".format(str(exc)))
             return {'result' : False}, 500
@@ -84,9 +86,10 @@ class Clause(Resource):
     def __init__(self):
         pass
 
+    @log.logger_decorator_with_params(logger)
     def get(self, clause_id):
         try:
-            result = sqlalchemy.get_item_from_db(sqlalchemy.Clauses, {'clause_id' : clause_id})
+            result = sqlalchemy_orm.get_item_from_db(sqlalchemy_orm.Clauses, {'clause_id' : clause_id})
         except Exception as exc:
             app.logger.debug(
                 "Exception raised during get data from clause ".format( clause_id, str(exc))
@@ -97,12 +100,13 @@ class Clause(Resource):
         else:
             return {'clause' : result}, 201
 
+    @log.logger_decorator_with_params(logger)
     def post(self):
         try:
-            new_clause_id = sqlalchemy.insert_data_to_db('Clauses', \
-                                                         sqlalchemy.Clauses(request.form['note_id'], \
-                                                                            request.form['title'], \
-                                                                            request.form['contents']))
+            new_clause_id = sqlalchemy_orm.insert_data_to_db('Clauses', \
+                                                             sqlalchemy_orm.Clauses(request.form['note_id'], \
+                                                                                    request.form['title'], \
+                                                                                    request.form['contents']))
         except Exception as exc:
             return {'clause_id' : None, 'title': None, 'contents' : None}, 500
         else:
@@ -111,11 +115,11 @@ class Clause(Resource):
             else:
                 return {'clause_id': None, 'title': None, 'contents': None}, 500
 
-
+    @log.logger_decorator_with_params(logger)
     def delete(self, clause_id):
         try:
 
-            result = sqlalchemy.delete_data_from_db(sqlalchemy.Clauses, {'clause_id' : clause_id})
+            result = sqlalchemy_orm.delete_data_from_db(sqlalchemy_orm.Clauses, {'clause_id' : clause_id})
         except Exception as exc:
             return {'clause_id': None}, 500
         else:
@@ -126,13 +130,14 @@ class Clause(Resource):
             else:
                 return {'clause_id': None}, 500
 
+    @log.logger_decorator_with_params(logger)
     def put(self, clause_id):
         update_data = {}
         for key, value in request.form.items():
             update_data[key] = value
 
         try:
-            clause = sqlalchemy.update_data_to_db(sqlalchemy.Clauses, {'clause_id' : clause_id}, update_data)
+            clause = sqlalchemy_orm.update_data_to_db(sqlalchemy_orm.Clauses, {'clause_id' : clause_id}, update_data)
         except Exception as exc:
             return {'clause_id':clause_id, 'clause' : None}, 500
         else:
@@ -148,14 +153,14 @@ class ClausePoint(Resource):
     def __init__(self):
         pass
 
-
+    @log.logger_decorator_with_params(logger)
     def get(self, **args):
 
         for key, value in request.args.items():
             args[key] = value
 
         try:
-            result = sqlalchemy.get_item_from_db(sqlalchemy.ClausePoints, args)
+            result = sqlalchemy_orm.get_item_from_db(sqlalchemy_orm.ClausePoints, args)
         except Exception as exc:
             app.logger.debug(
                 "Exception raised during 'SELECT * FROM ClausePoints WHERE args={0}' query: {1}".format(
@@ -171,12 +176,13 @@ class ClausePoint(Resource):
 
 
     # 포인트 정보 업데이트
+    @log.logger_decorator_with_params(logger)
     def put(self, clause_id):
         update_data = {}
         for key, value in request.form.items():
             update_data[key] = value
         try:
-            clause_point = sqlalchemy.update_data_to_db(sqlalchemy.ClausePoints, {'clause_id' : clause_id}, update_data)
+            clause_point = sqlalchemy_orm.update_data_to_db(sqlalchemy_orm.ClausePoints, {'clause_id' : clause_id}, update_data)
         except Exception as exc:
 
             app.logger.debug("Exception raised during 'Update point data to ClausePoints.\

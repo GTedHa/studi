@@ -1,7 +1,10 @@
-from .models.extentions import db
-from .models import Notes, Clauses, ClausePoints
 from sqlalchemy import or_
 from studi import app
+from .models.extentions import db
+from .models.notes import Notes
+from .models.clauses import Clauses
+from .models.clausePoints import ClausePoints
+
 
 # Create table (defalut, production = False)
 def create_db(Production=False):
@@ -35,7 +38,7 @@ def get_all_data_from_db(table):
     :param table: data model object
     :return: (dict) result
     """
-    items = table.query.all()
+    items = db.session.query(table)
     results = []
     if items:
         for item in items:

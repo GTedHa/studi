@@ -2,7 +2,7 @@
 from flask_restful import Api
 
 from studi import app
-from studi import sqlalchemy
+from studi import sqlalchemy_orm
 
 import csv
 
@@ -13,19 +13,19 @@ def save_csv_contents_to_db(file_name, note, Production=False):
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/test_studi.db'
 
     # Data model object
-    Notes = sqlalchemy.Notes
-    Clauses = sqlalchemy.Clauses
-    ClausePoints = sqlalchemy.ClausePoints
+    Notes = sqlalchemy_orm.Notes
+    Clauses = sqlalchemy_orm.Clauses
+    ClausePoints = sqlalchemy_orm.ClausePoints
     try:
-        note_id = sqlalchemy.insert_data_to_db("Notes", Notes(file_name))
+        note_id = sqlalchemy_orm.insert_data_to_db("Notes", Notes(file_name))
         for clauses_dict in note:
             title = None
             content = None
             for key, value in clauses_dict.items():
                 if key == 'title': title = value
                 if key == 'content': content = value
-            clauses_id = sqlalchemy.insert_data_to_db("Clauses", Clauses(note_id, title, content))
-            sqlalchemy.insert_data_to_db("ClausePoints", ClausePoints(clauses_id, note_id, 0, 0))
+            clauses_id = sqlalchemy_orm.insert_data_to_db("Clauses", Clauses(note_id, title, content))
+            sqlalchemy_orm.insert_data_to_db("ClausePoints", ClausePoints(clauses_id, note_id, 0, 0))
     except Exception as exc:
         # TODO: more elegant exception handling..
         app.logger.warn(
