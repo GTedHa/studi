@@ -31,6 +31,8 @@ import studi.rest_apis
 import studi.upload
 import studi.views
 import studi.sqlalchemy_orm
+import studi.log
+import studi.custom_error
 
 if not os.path.exists('studi/db/studi.db'):
     studi.sqlalchemy_orm.create_db(True)

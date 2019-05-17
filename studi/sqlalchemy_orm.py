@@ -71,6 +71,9 @@ def get_item_from_db(table, *args):
         query = query.filter(or_(*or_query))
     items = query.all()
 
+    if not items:
+        return []
+
     results = []
     if items:
         for item in items:
@@ -107,6 +110,9 @@ def delete_data_from_db(table, *args):
         query = query.filter(or_(*or_query))
     items = query.all()
 
+    if not items:
+        return []
+
     for item in items:
         db.session.delete(item)
         db.session.commit()
@@ -118,6 +124,10 @@ def delete_data_from_db(table, *args):
 def delete_note_and_related_data_from_db(note_id):
     query = db.session.query(Notes)
     note = query.filter(getattr(Notes, 'note_id') == note_id).one()
+
+    if not note:
+        return None
+
     # all() return list []
     db.session.delete(note)
     db.session.commit()
@@ -138,6 +148,9 @@ def update_data_to_db(table, condition, update_data):
         query = query.filter(getattr(table, attr) == value)
 
     models = query.all()
+
+    if not models:
+        return []
 
     for model in models:
         for key, value in update_data.items():

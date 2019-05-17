@@ -23,3 +23,5 @@ def logger_decorator_with_params(logger):
             return result
         return decorator
     return wrapper
+
+logger = gen_logger('studi')
