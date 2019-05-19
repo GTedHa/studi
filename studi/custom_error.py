@@ -1,3 +1,4 @@
+from studi import app
 from studi import log
 
 class BaseError(Exception):
@@ -8,6 +9,7 @@ class BaseError(Exception):
         self.message = message
         self.params = params
         self.error_message = error_message
+        self.logger = log.logger
 
     def __str__(self):
         return self.message
@@ -16,11 +18,21 @@ class BaseError(Exception):
         params = ''
         if self.params:
             params = ''.join(f'{key}: {value}' for key, value in self.params.items())
-
-        log.logger.error('Exception, code : {0}, status : {1}, message : {2}, parms : {3}, error_message : {4}'.format(self.code, self.status, self.message, params, self.error_message))
+        self.logger.error('Exception, code : {0}, status : {1}, message : {2}, parms : {3}, error_message : {4}'.format(self.code, self.status, self.message, params, self.error_message))
 
         response = {'code' : self.code, 'status' : self.status, 'message' : self.message}
         return response
+
+    def set_logger(self, logger):
+        self.logger = logger
+
+class AssertionError(BaseError):
+    def __init__(self, error_message):
+        BaseError.__init__(self)
+        self.code = 500
+        self.status = 'AssertionError'
+        self.message = '검증에 실패했습니다.'
+        self.error_message = error_message
 
 
 class AttributeError(BaseError):
@@ -33,11 +45,12 @@ class AttributeError(BaseError):
 
 
 class UnExpectedError(BaseError):
-    def __init__(self):
+    def __init__(self, error_message=''):
         BaseError.__init__(self)
         self.code = 500
         self.status = "UnExpectedError"
         self.message = '예기치 못한 서버 오류가 발생했습니다. 관리자에게 문의해주세요'
+        self.error_message = error_message
 
 
 class BadRequestError(BaseError):
