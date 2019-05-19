@@ -1,81 +1,93 @@
 import logging
 import os
+import sqlalchemy
 import unittest
 
-import studi
-
+from studi import app
+from studi import sqlalchemy_orm, util, custom_error
 
 def gen_logger(test_name):
     logger = logging.getLogger(test_name)
     logger.setLevel(logging.DEBUG)
-    logger_handler = logging.FileHandler(os.path.join(studi.app.config['LOG_DIR'], test_name + '.log'))
+    logger_handler = logging.FileHandler(os.path.join(app.config['TEST_LOG_DIR'], test_name + '.log'))
     logger_handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logger_handler.setFormatter(formatter)
     logger.addHandler(logger_handler)
     return logger
 
-test_name = 'test_create_db'
+test_name = "test_create_db"
 logger = gen_logger(test_name)
 
-
+# Testing that create DB by using flask_sqlalchemy(ORM)
 class TestCreateDB(unittest.TestCase):
 
     def setUp(self):
-        studi.app.testing = True
-        self.app = studi.app.test_client()
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/test_studi.db'
 
-    def test_connect_db(self):
-        with studi.app.app_context():
+
+        # delete db
+        if os.path.exists("../studi/db/test_studi.db"):
+            sqlalchemy_orm.drop_db(False)
+            self.app = app.test_client()
+
+
+    def test_create_db(self):
+        with app.app_context():
             try:
-                db = studi.intf_db.get_db()
-            except:
-                logger.debug("Cannot get db..")
-                db = None
-            self.assertIsNotNone(db)
+                db = sqlalchemy_orm.create_db(False)
+                table_names = db.engine.table_names()
+                self.assertIn('notes', table_names)
+                self.assertIn('clauses', table_names)
+                self.assertIn('clause_points', table_names)
 
-    def test_create_table_notes(self):
-        with studi.app.app_context():
+            except sqlalchemy.exc.SQLAlchemyError:
+                error_message = util.traceback_custom_error()
+                error = custom_error.SQLAlchemyError(error_message)
+                error.set_logger(logger)
+                error.to_dict()
+                raise
+            except AssertionError:
+                error_message = util.traceback_custom_error()
+                error = custom_error.AssertionError(error_message)
+                error.set_logger(logger)
+                error.to_dict()
+                raise
+            except:
+                error_message = util.traceback_custom_error()
+                error = custom_error.UnExpectedError(error_message)
+                error.set_logger(logger)
+                error.to_dict()
+                raise
+
+
+    def test_delete_db(self):
+        with app.app_context():
             try:
-                db = studi.intf_db.get_db()
+                db = sqlalchemy_orm.drop_db(False)
+                table_names = db.engine.table_names()
+                self.assertEqual(table_names, [])
+                self.assertEqual(len(table_names), 0)
+
+            except sqlalchemy.exc.SQLAlchemyError:
+                error_message = util.traceback_custom_error()
+                error = custom_error.SQLAlchemyError(error_message)
+                error.set_logger(logger)
+                error.to_dict()
+                raise
+            except AssertionError:
+                error_message = util.traceback_custom_error()
+                error = custom_error.AssertionError(error_message)
+                error.set_logger(logger)
+                error.to_dict()
+                raise
             except:
-                logger.debug("Cannot get db..")
-                db = None
-            self.assertIsNotNone(db)
-            executed = studi.utils.execute_sql_file(
-                studi.module_path + '/db/Notes.sql',
-                db
-            )
-            self.assertTrue(executed)
-
-    def test_create_table_clauses(self):
-        with studi.app.app_context():
-            try:
-                db = studi.intf_db.get_db()
-            except:
-                logger.debug("Cannot get db..")
-                db = None
-            self.assertIsNotNone(db)
-            executed = studi.utils.execute_sql_file(
-                studi.module_path + '/db/Clauses.sql',
-                db
-            )
-            self.assertTrue(executed)
-
-    def test_create_table_clause_points(self):
-        with studi.app.app_context():
-            try:
-                db = studi.intf_db.get_db()
-            except:
-                logger.debug("Cannot get db..")
-                db = None
-            self.assertIsNotNone(db)
-            executed = studi.utils.execute_sql_file(
-                studi.module_path + '/db/ClausePoints.sql',
-                db
-            )
-            self.assertTrue(executed)
+                error_message = util.traceback_custom_error()
+                error = custom_error.UnExpectedError(error_message)
+                error.set_logger(logger)
+                error.to_dict()
+                raise
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
