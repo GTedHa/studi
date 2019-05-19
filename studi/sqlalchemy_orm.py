@@ -1,7 +1,10 @@
-from .models.extentions import db
-from .models import Notes, Clauses, ClausePoints
 from sqlalchemy import or_
 from studi import app
+from .models.extentions import db
+from .models.notes import Notes
+from .models.clauses import Clauses
+from .models.clausePoints import ClausePoints
+
 
 # Create table (defalut, production = False)
 def create_db(Production=False):
@@ -35,7 +38,7 @@ def get_all_data_from_db(table):
     :param table: data model object
     :return: (dict) result
     """
-    items = table.query.all()
+    items = db.session.query(table)
     results = []
     if items:
         for item in items:
@@ -67,6 +70,9 @@ def get_item_from_db(table, *args):
             or_query.append(getattr(table, attr) == v)
         query = query.filter(or_(*or_query))
     items = query.all()
+
+    if not items:
+        return []
 
     results = []
     if items:
@@ -104,6 +110,9 @@ def delete_data_from_db(table, *args):
         query = query.filter(or_(*or_query))
     items = query.all()
 
+    if not items:
+        return []
+
     for item in items:
         db.session.delete(item)
         db.session.commit()
@@ -115,6 +124,10 @@ def delete_data_from_db(table, *args):
 def delete_note_and_related_data_from_db(note_id):
     query = db.session.query(Notes)
     note = query.filter(getattr(Notes, 'note_id') == note_id).one()
+
+    if not note:
+        return None
+
     # all() return list []
     db.session.delete(note)
     db.session.commit()
@@ -135,6 +148,9 @@ def update_data_to_db(table, condition, update_data):
         query = query.filter(getattr(table, attr) == value)
 
     models = query.all()
+
+    if not models:
+        return []
 
     for model in models:
         for key, value in update_data.items():
